@@ -2,7 +2,10 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0,
+                 maximum-scale=1.0, user-scalable=no">
+
   <title>긴급대책AI</title>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -252,6 +255,12 @@
       outline: none;
     }
 
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus {
+      border-color: #111827;
+    }
+
     .field textarea {
       min-height: 100px;
       resize: vertical;
@@ -283,6 +292,17 @@
       color: #9ca3af;
       font-size: 11px;
       margin-top: 7px;
+    }
+
+    .news-briefing {
+      background: #111827;
+      color: white;
+      border-radius: 15px;
+      padding: 16px;
+      margin-bottom: 12px;
+      line-height: 1.65;
+      font-size: 13px;
+      white-space: pre-wrap;
     }
 
     .ai-answer {
@@ -419,7 +439,9 @@
 <div id="outsideTelegram" class="hidden">
   <div style="padding:40px 20px;text-align:center;">
     <div style="font-size:50px;margin-bottom:15px;">🤖</div>
+
     <h2>긴급대책AI</h2>
+
     <p style="color:#6b7280;line-height:1.6;">
       Telegram 앱 안에서<br>
       긴급대책AI 메뉴 버튼으로 열어주세요.
@@ -427,212 +449,426 @@
   </div>
 </div>
 
+
 <div id="app" class="app hidden">
 
   <header class="header">
+
     <div class="header-row">
+
       <div>
         <div class="title">긴급대책AI</div>
-        <div id="userName" class="user-name">로그인 확인 중...</div>
+        <div id="userName" class="user-name">
+          로그인 확인 중...
+        </div>
       </div>
-      <button class="refresh-btn" onclick="refreshCurrent()">↻</button>
+
+      <button
+        class="refresh-btn"
+        onclick="refreshCurrent()">
+        ↻
+      </button>
+
     </div>
+
   </header>
 
+
   <main class="content">
+
 
     <!-- 홈 -->
     <section id="page-home" class="page active">
 
       <div class="welcome">
-        <div class="welcome-title">긴급대책AI</div>
+
+        <div class="welcome-title">
+          긴급대책AI
+        </div>
+
         <div class="welcome-text">
           일정, 정산, 메모를 한 곳에서 관리하세요.
         </div>
+
       </div>
+
 
       <div class="card-grid">
 
-        <button class="menu-card" onclick="showPage('schedule')">
+        <button
+          class="menu-card"
+          onclick="showPage('schedule')">
+
           <div class="menu-icon">📅</div>
-          <div class="menu-title">일정</div>
-          <div class="menu-desc">일정 등록·수정·삭제</div>
+
+          <div class="menu-title">
+            일정
+          </div>
+
+          <div class="menu-desc">
+            일정 등록·수정·삭제
+          </div>
+
         </button>
 
-        <button class="menu-card" onclick="showPage('settlement')">
+
+        <button
+          class="menu-card"
+          onclick="showPage('settlement')">
+
           <div class="menu-icon">💰</div>
-          <div class="menu-title">정산</div>
-          <div class="menu-desc">비용과 지출 관리</div>
+
+          <div class="menu-title">
+            정산
+          </div>
+
+          <div class="menu-desc">
+            비용과 지출 관리
+          </div>
+
         </button>
 
-        <button class="menu-card" onclick="showPage('memo')">
+
+        <button
+          class="menu-card"
+          onclick="showPage('memo')">
+
           <div class="menu-icon">📝</div>
-          <div class="menu-title">메모</div>
-          <div class="menu-desc">공유 메모 관리</div>
+
+          <div class="menu-title">
+            메모
+          </div>
+
+          <div class="menu-desc">
+            공유 메모 관리
+          </div>
+
         </button>
 
-        <button class="menu-card" onclick="showNews()">
+
+        <button
+          class="menu-card"
+          onclick="showNews()">
+
           <div class="menu-icon">📰</div>
-          <div class="menu-title">뉴스</div>
-          <div class="menu-desc">오늘의 주요 뉴스</div>
+
+          <div class="menu-title">
+            뉴스
+          </div>
+
+          <div class="menu-desc">
+            오늘의 주요 뉴스
+          </div>
+
         </button>
 
       </div>
 
-      <div class="section-title">AI에게 물어보기</div>
 
-      <button class="primary-btn" onclick="showPage('ai')">
+      <div class="section-title">
+        AI에게 물어보기
+      </div>
+
+      <button
+        class="primary-btn"
+        onclick="showPage('ai')">
+
         🤖 긴급대책AI에게 질문
+
       </button>
 
-      <div class="section-title">오늘의 일정</div>
+
+      <div class="section-title">
+        오늘의 일정
+      </div>
+
       <div id="homeSchedules"></div>
 
     </section>
 
 
+
     <!-- 일정 -->
     <section id="page-schedule" class="page">
 
-      <div class="section-title">일정 관리</div>
-
-      <div class="form">
-        <div class="form-title">일정 등록</div>
-
-        <div class="field">
-          <label>날짜</label>
-          <input id="scheduleDate" type="date">
-        </div>
-
-        <div class="field">
-          <label>시간</label>
-          <input id="scheduleTime" type="time">
-        </div>
-
-        <div class="field">
-          <label>일정</label>
-          <input id="scheduleTitle" placeholder="예: 회의">
-        </div>
-
-        <button class="primary-btn" onclick="addSchedule()">
-          일정 등록
-        </button>
+      <div class="section-title">
+        일정 관리
       </div>
 
-      <div id="scheduleList" class="list"></div>
+
+      <div class="form">
+
+        <div class="form-title">
+          일정 등록
+        </div>
+
+
+        <div class="field">
+
+          <label>날짜</label>
+
+          <input
+            id="scheduleDate"
+            type="date">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>시간</label>
+
+          <input
+            id="scheduleTime"
+            type="time">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>일정</label>
+
+          <input
+            id="scheduleTitle"
+            placeholder="예: 회의">
+
+        </div>
+
+
+        <button
+          class="primary-btn"
+          onclick="addSchedule()">
+
+          일정 등록
+
+        </button>
+
+      </div>
+
+
+      <div
+        id="scheduleList"
+        class="list">
+      </div>
 
     </section>
+
 
 
     <!-- 정산 -->
     <section id="page-settlement" class="page">
 
-      <div class="section-title">정산 관리</div>
-
-      <div class="form">
-        <div class="form-title">정산 등록</div>
-
-        <div class="field">
-          <label>날짜</label>
-          <input id="settlementDate" type="date">
-        </div>
-
-        <div class="field">
-          <label>내용</label>
-          <input id="settlementContent" placeholder="예: 식비">
-        </div>
-
-        <div class="field">
-          <label>금액</label>
-          <input id="settlementAmount" type="number" placeholder="예: 35000">
-        </div>
-
-        <div class="field">
-          <label>비고</label>
-          <input id="settlementNote" placeholder="선택사항">
-        </div>
-
-        <button class="primary-btn" onclick="addSettlement()">
-          정산 등록
-        </button>
+      <div class="section-title">
+        정산 관리
       </div>
 
-      <div id="settlementList" class="list"></div>
+
+      <div class="form">
+
+        <div class="form-title">
+          정산 등록
+        </div>
+
+
+        <div class="field">
+
+          <label>날짜</label>
+
+          <input
+            id="settlementDate"
+            type="date">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>내용</label>
+
+          <input
+            id="settlementContent"
+            placeholder="예: 식비">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>금액</label>
+
+          <input
+            id="settlementAmount"
+            type="number"
+            inputmode="numeric"
+            placeholder="예: 35000">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>비고</label>
+
+          <input
+            id="settlementNote"
+            placeholder="선택사항">
+
+        </div>
+
+
+        <button
+          class="primary-btn"
+          onclick="addSettlement()">
+
+          정산 등록
+
+        </button>
+
+      </div>
+
+
+      <div
+        id="settlementList"
+        class="list">
+      </div>
 
     </section>
+
 
 
     <!-- 메모 -->
     <section id="page-memo" class="page">
 
-      <div class="section-title">공유 메모</div>
-
-      <div class="form">
-        <div class="form-title">메모 등록</div>
-
-        <div class="field">
-          <label>날짜</label>
-          <input id="memoDate" type="date">
-        </div>
-
-        <div class="field">
-          <label>메모</label>
-          <textarea id="memoText" placeholder="공유할 내용을 입력하세요"></textarea>
-        </div>
-
-        <div class="field">
-          <label>비고</label>
-          <input id="memoNote" placeholder="선택사항">
-        </div>
-
-        <button class="primary-btn" onclick="addMemo()">
-          메모 등록
-        </button>
+      <div class="section-title">
+        공유 메모
       </div>
 
-      <div id="memoList" class="list"></div>
+
+      <div class="form">
+
+        <div class="form-title">
+          메모 등록
+        </div>
+
+
+        <div class="field">
+
+          <label>날짜</label>
+
+          <input
+            id="memoDate"
+            type="date">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>메모</label>
+
+          <textarea
+            id="memoText"
+            placeholder="공유할 내용을 입력하세요">
+          </textarea>
+
+        </div>
+
+
+        <div class="field">
+
+          <label>비고</label>
+
+          <input
+            id="memoNote"
+            placeholder="선택사항">
+
+        </div>
+
+
+        <button
+          class="primary-btn"
+          onclick="addMemo()">
+
+          메모 등록
+
+        </button>
+
+      </div>
+
+
+      <div
+        id="memoList"
+        class="list">
+      </div>
 
     </section>
+
 
 
     <!-- 뉴스 -->
     <section id="page-news" class="page">
 
-      <div class="section-title">오늘의 뉴스</div>
+      <div class="section-title">
+        오늘의 뉴스
+      </div>
 
-      <button class="primary-btn" onclick="loadNews()">
+
+      <button
+        class="primary-btn"
+        onclick="loadNews()">
+
         📰 최신 뉴스 불러오기
+
       </button>
+
 
       <div id="newsList"></div>
 
     </section>
 
 
+
     <!-- AI -->
     <section id="page-ai" class="page">
 
-      <div class="section-title">긴급대책AI</div>
+      <div class="section-title">
+        긴급대책AI
+      </div>
+
 
       <div class="notice">
-        일정, 정산, 뉴스, 상황 판단 등에 대해 자유롭게 질문하세요.
+
+        일정, 정산, 뉴스, 상황 판단 등에 대해
+        자유롭게 질문하세요.
+
       </div>
+
 
       <div class="form">
 
         <div class="field">
+
           <label>질문</label>
+
           <textarea
             id="aiQuestion"
-            placeholder="예: 오늘 일정과 관련해서 주의할 점을 정리해줘."
-          ></textarea>
+            placeholder="예: 오늘 일정과 관련해서 주의할 점을 정리해줘.">
+          </textarea>
+
         </div>
 
-        <button class="primary-btn" onclick="askAI()">
+
+        <button
+          class="primary-btn"
+          onclick="askAI()">
+
           🤖 AI에게 질문
+
         </button>
 
       </div>
+
 
       <div id="aiAnswer"></div>
 
@@ -641,37 +877,68 @@
   </main>
 
 
+
   <!-- 하단 메뉴 -->
   <nav class="bottom-nav">
 
-    <button id="nav-home" class="nav-btn active" onclick="showPage('home')">
+    <button
+      id="nav-home"
+      class="nav-btn active"
+      onclick="showPage('home')">
+
       <span class="nav-icon">🏠</span>
       홈
+
     </button>
 
-    <button id="nav-schedule" class="nav-btn" onclick="showPage('schedule')">
+
+    <button
+      id="nav-schedule"
+      class="nav-btn"
+      onclick="showPage('schedule')">
+
       <span class="nav-icon">📅</span>
       일정
+
     </button>
 
-    <button id="nav-settlement" class="nav-btn" onclick="showPage('settlement')">
+
+    <button
+      id="nav-settlement"
+      class="nav-btn"
+      onclick="showPage('settlement')">
+
       <span class="nav-icon">💰</span>
       정산
+
     </button>
 
-    <button id="nav-memo" class="nav-btn" onclick="showPage('memo')">
+
+    <button
+      id="nav-memo"
+      class="nav-btn"
+      onclick="showPage('memo')">
+
       <span class="nav-icon">📝</span>
       메모
+
     </button>
 
-    <button id="nav-ai" class="nav-btn" onclick="showPage('ai')">
+
+    <button
+      id="nav-ai"
+      class="nav-btn"
+      onclick="showPage('ai')">
+
       <span class="nav-icon">🤖</span>
       AI
+
     </button>
 
   </nav>
 
 </div>
+
 
 
 <!-- 수정 모달 -->
@@ -680,18 +947,42 @@
   <div class="modal-box">
 
     <div class="modal-header">
-      <div id="modalTitle" class="modal-title">수정</div>
-      <button class="close-btn" onclick="closeModal()">×</button>
+
+      <div
+        id="modalTitle"
+        class="modal-title">
+        수정
+      </div>
+
+      <button
+        class="close-btn"
+        onclick="closeModal()">
+
+        ×
+
+      </button>
+
     </div>
+
 
     <div id="modalFields"></div>
 
-    <button class="primary-btn" onclick="saveEdit()">
+
+    <button
+      class="primary-btn"
+      onclick="saveEdit()">
+
       저장
+
     </button>
 
-    <button class="secondary-btn" onclick="closeModal()">
+
+    <button
+      class="secondary-btn"
+      onclick="closeModal()">
+
       취소
+
     </button>
 
   </div>
@@ -699,30 +990,40 @@
 </div>
 
 
+
 <script>
 
   /*
    * ============================================================
    * 긴급대책AI Mini App
+   * GitHub Pages:
+   * https://kse1116.github.io/emergency-manager/
    * ============================================================
    */
+
 
   const API_URL =
     "https://script.google.com/macros/s/AKfycby3OEfk0jjKccfdviqgePbcPSIdiWOX8ezss7g9KN52KxWoWosdRgmNUc8fL1r4y9ko/exec";
 
 
   let tg = null;
+
   let initData = "";
 
   let schedules = [];
+
   let settlements = [];
+
   let memos = [];
 
   let currentPage = "home";
 
   let editType = "";
+
   let editRow = null;
+
   let editData = null;
+
 
 
   /*
@@ -735,6 +1036,7 @@
       !window.Telegram ||
       !window.Telegram.WebApp
     ) {
+
       document
         .getElementById("outsideTelegram")
         .classList.remove("hidden");
@@ -742,12 +1044,19 @@
       return false;
     }
 
+
     tg = window.Telegram.WebApp;
 
-    tg.ready();
-    tg.expand();
 
-    initData = tg.initData || "";
+    try {
+      tg.ready();
+      tg.expand();
+    } catch (e) {}
+
+
+    initData =
+      tg.initData || "";
+
 
     if (!initData) {
 
@@ -758,9 +1067,11 @@
       return false;
     }
 
+
     document
       .getElementById("app")
       .classList.remove("hidden");
+
 
     const user =
       tg.initDataUnsafe &&
@@ -768,34 +1079,55 @@
         ? tg.initDataUnsafe.user
         : null;
 
+
     if (user) {
 
       let name = "";
+
 
       if (user.first_name) {
         name += user.first_name;
       }
 
+
       if (user.last_name) {
-        name += " " + user.last_name;
+
+        if (name) {
+          name += " ";
+        }
+
+        name += user.last_name;
       }
+
 
       if (user.username) {
-        name += " @" + user.username;
+
+        if (name) {
+          name += " ";
+        }
+
+        name += "@" + user.username;
       }
 
-      document.getElementById("userName").textContent =
+
+      document
+        .getElementById("userName")
+        .textContent =
         name || "Telegram 사용자";
 
     } else {
 
-      document.getElementById("userName").textContent =
+      document
+        .getElementById("userName")
+        .textContent =
         "Telegram 사용자";
 
     }
 
+
     return true;
   }
+
 
 
   /*
@@ -807,98 +1139,130 @@
     return new Promise(function(resolve, reject) {
 
       if (!initData) {
+
         reject(
           new Error(
             "Telegram 인증 정보가 없습니다."
           )
         );
+
         return;
       }
+
 
       const callbackName =
         "__miniAppCallback_" +
         Date.now() +
         "_" +
-        Math.floor(Math.random() * 100000);
+        Math.floor(
+          Math.random() * 100000
+        );
+
 
       const script =
         document.createElement("script");
 
+
       const query = [];
+
 
       query.push(
         "action=" +
         encodeURIComponent(action)
       );
 
+
       query.push(
         "initData=" +
         encodeURIComponent(initData)
       );
+
 
       query.push(
         "callback=" +
         encodeURIComponent(callbackName)
       );
 
+
       query.push(
         "ts=" +
         Date.now()
       );
 
-      Object.keys(params).forEach(function(key) {
 
-        const value =
-          params[key] === undefined ||
-          params[key] === null
-            ? ""
-            : params[key];
+      Object.keys(params).forEach(
+        function(key) {
 
-        query.push(
-          encodeURIComponent(key) +
-          "=" +
-          encodeURIComponent(value)
-        );
+          const value =
+            params[key] === undefined ||
+            params[key] === null
+              ? ""
+              : params[key];
 
-      });
+
+          query.push(
+            encodeURIComponent(key) +
+            "=" +
+            encodeURIComponent(value)
+          );
+
+        }
+      );
+
 
       const url =
         API_URL +
         "?" +
         query.join("&");
 
+
       let finished = false;
 
+
       const timer =
-        setTimeout(function() {
+        setTimeout(
+          function() {
 
-          if (finished) return;
+            if (finished) return;
 
-          finished = true;
+            finished = true;
 
-          cleanup();
+            cleanup();
 
-          reject(
-            new Error(
-              "서버 응답 시간이 초과되었습니다."
-            )
-          );
+            reject(
+              new Error(
+                "서버 응답 시간이 초과되었습니다."
+              )
+            );
 
-        }, 20000);
+          },
+          20000
+        );
 
 
       function cleanup() {
 
         clearTimeout(timer);
 
+
         if (script.parentNode) {
-          script.parentNode.removeChild(script);
+
+          script.parentNode.removeChild(
+            script
+          );
+
         }
 
+
         try {
+
           delete window[callbackName];
+
         } catch (e) {
-          window[callbackName] = undefined;
+
+          window[callbackName] =
+            undefined;
+
         }
 
       }
@@ -913,10 +1277,20 @@
 
           cleanup();
 
-          if (
-            result &&
-            result.ok === false
-          ) {
+
+          if (!result) {
+
+            reject(
+              new Error(
+                "서버 응답이 없습니다."
+              )
+            );
+
+            return;
+          }
+
+
+          if (result.ok === false) {
 
             reject(
               new Error(
@@ -927,6 +1301,7 @@
 
             return;
           }
+
 
           resolve(result);
 
@@ -942,6 +1317,7 @@
 
           cleanup();
 
+
           reject(
             new Error(
               "API 서버에 연결할 수 없습니다."
@@ -953,6 +1329,7 @@
 
       script.src = url;
 
+
       document
         .head
         .appendChild(script);
@@ -962,6 +1339,26 @@
   }
 
 
+
+  /*
+   * API data 공통 처리
+   */
+
+  function getApiData(result, fallback) {
+
+    if (
+      result &&
+      result.data !== undefined
+    ) {
+      return result.data;
+    }
+
+
+    return fallback;
+  }
+
+
+
   /*
    * 로딩
    */
@@ -969,7 +1366,10 @@
   function showLoading(show) {
 
     const el =
-      document.getElementById("loading");
+      document.getElementById(
+        "loading"
+      );
+
 
     if (show) {
       el.classList.add("show");
@@ -980,6 +1380,7 @@
   }
 
 
+
   /*
    * 페이지 전환
    */
@@ -988,18 +1389,25 @@
 
     currentPage = page;
 
+
     document
       .querySelectorAll(".page")
-      .forEach(function(el) {
+      .forEach(
+        function(el) {
 
-        el.classList.remove("active");
+          el.classList.remove(
+            "active"
+          );
 
-      });
+        }
+      );
+
 
     const target =
       document.getElementById(
         "page-" + page
       );
+
 
     if (target) {
       target.classList.add("active");
@@ -1008,16 +1416,22 @@
 
     document
       .querySelectorAll(".nav-btn")
-      .forEach(function(el) {
+      .forEach(
+        function(el) {
 
-        el.classList.remove("active");
+          el.classList.remove(
+            "active"
+          );
 
-      });
+        }
+      );
+
 
     const nav =
       document.getElementById(
         "nav-" + page
       );
+
 
     if (nav) {
       nav.classList.add("active");
@@ -1028,23 +1442,28 @@
       loadHome();
     }
 
+
     if (page === "schedule") {
       loadSchedules();
     }
+
 
     if (page === "settlement") {
       loadSettlements();
     }
 
+
     if (page === "memo") {
       loadMemos();
     }
+
 
     if (page === "news") {
       loadNews();
     }
 
   }
+
 
 
   function refreshCurrent() {
@@ -1072,28 +1491,43 @@
   }
 
 
+
   /*
    * 날짜
    */
 
   function today() {
 
-    const d = new Date();
+    const d =
+      new Date();
+
 
     const y =
       d.getFullYear();
 
+
     const m =
-      String(d.getMonth() + 1)
-        .padStart(2, "0");
+      String(
+        d.getMonth() + 1
+      ).padStart(2, "0");
+
 
     const day =
-      String(d.getDate())
-        .padStart(2, "0");
+      String(
+        d.getDate()
+      ).padStart(2, "0");
 
-    return y + "-" + m + "-" + day;
+
+    return (
+      y +
+      "-" +
+      m +
+      "-" +
+      day
+    );
 
   }
+
 
 
   /*
@@ -1102,18 +1536,74 @@
 
   function escapeHtml(value) {
 
-    if (value === null || value === undefined) {
+    if (
+      value === null ||
+      value === undefined
+    ) {
       return "";
     }
 
+
     return String(value)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
+      .replace(
+        /&/g,
+        "&amp;"
+      )
+      .replace(
+        /</g,
+        "&lt;"
+      )
+      .replace(
+        />/g,
+        "&gt;"
+      )
+      .replace(
+        /"/g,
+        "&quot;"
+      )
+      .replace(
+        /'/g,
+        "&#039;"
+      );
 
   }
+
+
+
+  /*
+   * 행 ID
+   *
+   * 최종 Code.gs가 id를 반환하는 경우와
+   * 기존 코드가 row를 반환하는 경우 모두 대응
+   */
+
+  function getItemId(item) {
+
+    if (!item) {
+      return "";
+    }
+
+
+    if (
+      item.id !== undefined &&
+      item.id !== null
+    ) {
+      return item.id;
+    }
+
+
+    if (
+      item.row !== undefined &&
+      item.row !== null
+    ) {
+      return item.row;
+    }
+
+
+    return "";
+
+  }
+
 
 
   /*
@@ -1125,25 +1615,60 @@
     try {
 
       const result =
-        await api("getSchedules");
+        await api(
+          "getSchedules"
+        );
 
-      schedules =
-        result.schedules || [];
+
+      const data =
+        getApiData(
+          result,
+          []
+        );
+
+
+      if (
+        Array.isArray(data)
+      ) {
+
+        schedules = data;
+
+      } else if (
+        data &&
+        Array.isArray(data.schedules)
+      ) {
+
+        schedules =
+          data.schedules;
+
+      } else {
+
+        schedules =
+          result.schedules ||
+          [];
+
+      }
+
 
       renderHomeSchedules();
 
     } catch (error) {
 
       document
-        .getElementById("homeSchedules")
+        .getElementById(
+          "homeSchedules"
+        )
         .innerHTML =
         '<div class="empty">' +
-        escapeHtml(error.message) +
+        escapeHtml(
+          error.message
+        ) +
         '</div>';
 
     }
 
   }
+
 
 
   function renderHomeSchedules() {
@@ -1153,10 +1678,13 @@
         "homeSchedules"
       );
 
+
     if (!schedules.length) {
 
       box.innerHTML =
-        '<div class="empty">등록된 일정이 없습니다.</div>';
+        '<div class="empty">' +
+        '등록된 일정이 없습니다.' +
+        '</div>';
 
       return;
     }
@@ -1165,18 +1693,27 @@
     const todayText =
       today();
 
+
     const list =
-      schedules.filter(function(item) {
+      schedules.filter(
+        function(item) {
 
-        return String(item.date) === todayText;
+          return (
+            String(
+              item.date || ""
+            ) === todayText
+          );
 
-      });
+        }
+      );
 
 
     if (!list.length) {
 
       box.innerHTML =
-        '<div class="empty">오늘 일정이 없습니다.</div>';
+        '<div class="empty">' +
+        '오늘 일정이 없습니다.' +
+        '</div>';
 
       return;
     }
@@ -1184,24 +1721,40 @@
 
     box.innerHTML =
       '<div class="list">' +
-      list.map(function(item) {
 
-        return `
-          <div class="item">
-            <div class="item-main">
-              ${escapeHtml(item.time || "")}
-              ${escapeHtml(item.title || item.schedule || "")}
-            </div>
-            <div class="item-meta">
-              ${escapeHtml(item.date || "")}
-            </div>
-          </div>
-        `;
+      list.map(
+        function(item) {
 
-      }).join("") +
+          const title =
+            item.title ||
+            item.schedule ||
+            item.content ||
+            "";
+
+
+          return `
+            <div class="item">
+
+              <div class="item-main">
+                ${escapeHtml(item.time || "")}
+                ${item.time ? " · " : ""}
+                ${escapeHtml(title)}
+              </div>
+
+              <div class="item-meta">
+                ${escapeHtml(item.date || "")}
+              </div>
+
+            </div>
+          `;
+
+        }
+      ).join("") +
+
       "</div>";
 
   }
+
 
 
   /*
@@ -1215,16 +1768,50 @@
         "scheduleList"
       );
 
+
     box.innerHTML =
-      '<div class="empty">불러오는 중...</div>';
+      '<div class="empty">' +
+      '불러오는 중...' +
+      '</div>';
+
 
     try {
 
       const result =
-        await api("getSchedules");
+        await api(
+          "getSchedules"
+        );
 
-      schedules =
-        result.schedules || [];
+
+      const data =
+        getApiData(
+          result,
+          []
+        );
+
+
+      if (
+        Array.isArray(data)
+      ) {
+
+        schedules = data;
+
+      } else if (
+        data &&
+        Array.isArray(data.schedules)
+      ) {
+
+        schedules =
+          data.schedules;
+
+      } else {
+
+        schedules =
+          result.schedules ||
+          [];
+
+      }
+
 
       renderSchedules();
 
@@ -1232,12 +1819,15 @@
 
       box.innerHTML =
         '<div class="empty">' +
-        escapeHtml(error.message) +
+        escapeHtml(
+          error.message
+        ) +
         '</div>';
 
     }
 
   }
+
 
 
   function renderSchedules() {
@@ -1247,57 +1837,92 @@
         "scheduleList"
       );
 
+
     if (!schedules.length) {
 
       box.innerHTML =
-        '<div class="empty">등록된 일정이 없습니다.</div>';
+        '<div class="empty">' +
+        '등록된 일정이 없습니다.' +
+        '</div>';
 
       return;
     }
 
 
     box.innerHTML =
-      schedules.map(function(item) {
+      schedules.map(
+        function(item) {
 
-        return `
-          <div class="item">
+          const id =
+            getItemId(item);
 
-            <div class="item-main">
-              📅 ${escapeHtml(item.date || "")}
-              ${item.time
-                ? " · " + escapeHtml(item.time)
-                : ""}
-              <br>
-              ${escapeHtml(item.title || item.schedule || "")}
+
+          const title =
+            item.title ||
+            item.schedule ||
+            "";
+
+
+          return `
+            <div class="item">
+
+              <div class="item-main">
+                📅 ${escapeHtml(item.date || "")}
+
+                ${
+                  item.time
+                    ? " · " +
+                      escapeHtml(item.time)
+                    : ""
+                }
+
+                <br>
+
+                ${escapeHtml(title)}
+              </div>
+
+
+              <div class="item-meta">
+
+                등록자:
+                ${escapeHtml(
+                  item.registrant ||
+                  item.registeredBy ||
+                  ""
+                )}
+
+              </div>
+
+
+              <div class="item-actions">
+
+                <button
+                  class="small-btn"
+                  onclick='openEdit("schedule", ${JSON.stringify(id)})'>
+
+                  수정
+
+                </button>
+
+
+                <button
+                  class="small-btn delete"
+                  onclick='deleteSchedule(${JSON.stringify(id)})'>
+
+                  삭제
+
+                </button>
+
+              </div>
+
             </div>
+          `;
 
-            <div class="item-meta">
-              등록자:
-              ${escapeHtml(item.registrant || "")}
-            </div>
-
-            <div class="item-actions">
-
-              <button
-                class="small-btn"
-                onclick="openEdit('schedule', ${item.row})">
-                수정
-              </button>
-
-              <button
-                class="small-btn delete"
-                onclick="deleteSchedule(${item.row})">
-                삭제
-              </button>
-
-            </div>
-
-          </div>
-        `;
-
-      }).join("");
+        }
+      ).join("");
 
   }
+
 
 
   async function addSchedule() {
@@ -1307,10 +1932,12 @@
         "scheduleDate"
       ).value;
 
+
     const time =
       document.getElementById(
         "scheduleTime"
       ).value;
+
 
     const title =
       document.getElementById(
@@ -1330,6 +1957,7 @@
 
     showLoading(true);
 
+
     try {
 
       await api(
@@ -1341,17 +1969,24 @@
         }
       );
 
+
       document.getElementById(
         "scheduleTitle"
       ).value = "";
 
-      alert("일정이 등록되었습니다.");
+
+      alert(
+        "일정이 등록되었습니다."
+      );
+
 
       await loadSchedules();
 
     } catch (error) {
 
-      alert(error.message);
+      alert(
+        error.message
+      );
 
     } finally {
 
@@ -1362,28 +1997,39 @@
   }
 
 
-  async function deleteSchedule(row) {
 
-    if (!confirm("이 일정을 삭제할까요?")) {
+  async function deleteSchedule(id) {
+
+    if (
+      !confirm(
+        "이 일정을 삭제할까요?"
+      )
+    ) {
       return;
     }
 
+
     showLoading(true);
+
 
     try {
 
       await api(
         "deleteSchedule",
         {
-          row: row
+          id: id,
+          row: id
         }
       );
+
 
       await loadSchedules();
 
     } catch (error) {
 
-      alert(error.message);
+      alert(
+        error.message
+      );
 
     } finally {
 
@@ -1392,6 +2038,7 @@
     }
 
   }
+
 
 
   /*
@@ -1405,16 +2052,52 @@
         "settlementList"
       );
 
+
     box.innerHTML =
-      '<div class="empty">불러오는 중...</div>';
+      '<div class="empty">' +
+      '불러오는 중...' +
+      '</div>';
+
 
     try {
 
       const result =
-        await api("getSettlements");
+        await api(
+          "getSettlements"
+        );
 
-      settlements =
-        result.settlements || [];
+
+      const data =
+        getApiData(
+          result,
+          []
+        );
+
+
+      if (
+        Array.isArray(data)
+      ) {
+
+        settlements = data;
+
+      } else if (
+        data &&
+        Array.isArray(
+          data.settlements
+        )
+      ) {
+
+        settlements =
+          data.settlements;
+
+      } else {
+
+        settlements =
+          result.settlements ||
+          [];
+
+      }
+
 
       renderSettlements();
 
@@ -1422,12 +2105,15 @@
 
       box.innerHTML =
         '<div class="empty">' +
-        escapeHtml(error.message) +
+        escapeHtml(
+          error.message
+        ) +
         '</div>';
 
     }
 
   }
+
 
 
   function renderSettlements() {
@@ -1437,68 +2123,115 @@
         "settlementList"
       );
 
+
     if (!settlements.length) {
 
       box.innerHTML =
-        '<div class="empty">등록된 정산이 없습니다.</div>';
+        '<div class="empty">' +
+        '등록된 정산이 없습니다.' +
+        '</div>';
 
       return;
     }
 
 
     box.innerHTML =
-      settlements.map(function(item) {
+      settlements.map(
+        function(item) {
 
-        const amount =
-          Number(item.amount || 0);
-
-        const amountText =
-          Number.isFinite(amount)
-            ? amount.toLocaleString("ko-KR") + "원"
-            : escapeHtml(item.amount || "");
+          const id =
+            getItemId(item);
 
 
-        return `
-          <div class="item">
+          const amount =
+            Number(
+              item.amount || 0
+            );
 
-            <div class="item-main">
-              💰 ${escapeHtml(item.content || "")}
+
+          const amountText =
+            Number.isFinite(amount)
+              ? amount.toLocaleString(
+                  "ko-KR"
+                ) + "원"
+              : escapeHtml(
+                  item.amount || ""
+                );
+
+
+          return `
+            <div class="item">
+
+              <div class="item-main">
+                💰 ${escapeHtml(
+                  item.content || ""
+                )}
+              </div>
+
+
+              <div class="item-meta">
+
+                ${escapeHtml(
+                  item.date || ""
+                )}
+
+                ·
+
+                ${amountText}
+
+
+                ${
+                  item.note
+                    ? "<br>비고: " +
+                      escapeHtml(
+                        item.note
+                      )
+                    : ""
+                }
+
+
+                <br>
+
+                등록자:
+
+                ${escapeHtml(
+                  item.registrant ||
+                  item.registeredBy ||
+                  ""
+                )}
+
+              </div>
+
+
+              <div class="item-actions">
+
+                <button
+                  class="small-btn"
+                  onclick='openEdit("settlement", ${JSON.stringify(id)})'>
+
+                  수정
+
+                </button>
+
+
+                <button
+                  class="small-btn delete"
+                  onclick='deleteSettlement(${JSON.stringify(id)})'>
+
+                  삭제
+
+                </button>
+
+              </div>
+
             </div>
+          `;
 
-            <div class="item-meta">
-              ${escapeHtml(item.date || "")}
-              · ${amountText}
-              ${item.note
-                ? "<br>비고: " +
-                  escapeHtml(item.note)
-                : ""}
-              <br>
-              등록자:
-              ${escapeHtml(item.registrant || "")}
-            </div>
-
-            <div class="item-actions">
-
-              <button
-                class="small-btn"
-                onclick="openEdit('settlement', ${item.row})">
-                수정
-              </button>
-
-              <button
-                class="small-btn delete"
-                onclick="deleteSettlement(${item.row})">
-                삭제
-              </button>
-
-            </div>
-
-          </div>
-        `;
-
-      }).join("");
+        }
+      ).join("");
 
   }
+
 
 
   async function addSettlement() {
@@ -1508,15 +2241,18 @@
         "settlementDate"
       ).value;
 
+
     const content =
       document.getElementById(
         "settlementContent"
       ).value.trim();
 
+
     const amount =
       document.getElementById(
         "settlementAmount"
       ).value;
+
 
     const note =
       document.getElementById(
@@ -1524,7 +2260,11 @@
       ).value.trim();
 
 
-    if (!date || !content || !amount) {
+    if (
+      !date ||
+      !content ||
+      !amount
+    ) {
 
       alert(
         "날짜, 내용, 금액을 입력해주세요."
@@ -1535,6 +2275,7 @@
 
 
     showLoading(true);
+
 
     try {
 
@@ -1548,25 +2289,34 @@
         }
       );
 
+
       document.getElementById(
         "settlementContent"
       ).value = "";
+
 
       document.getElementById(
         "settlementAmount"
       ).value = "";
 
+
       document.getElementById(
         "settlementNote"
       ).value = "";
 
-      alert("정산이 등록되었습니다.");
+
+      alert(
+        "정산이 등록되었습니다."
+      );
+
 
       await loadSettlements();
 
     } catch (error) {
 
-      alert(error.message);
+      alert(
+        error.message
+      );
 
     } finally {
 
@@ -1577,28 +2327,39 @@
   }
 
 
-  async function deleteSettlement(row) {
 
-    if (!confirm("이 정산을 삭제할까요?")) {
+  async function deleteSettlement(id) {
+
+    if (
+      !confirm(
+        "이 정산을 삭제할까요?"
+      )
+    ) {
       return;
     }
 
+
     showLoading(true);
+
 
     try {
 
       await api(
         "deleteSettlement",
         {
-          row: row
+          id: id,
+          row: id
         }
       );
+
 
       await loadSettlements();
 
     } catch (error) {
 
-      alert(error.message);
+      alert(
+        error.message
+      );
 
     } finally {
 
@@ -1607,6 +2368,7 @@
     }
 
   }
+
 
 
   /*
@@ -1620,16 +2382,52 @@
         "memoList"
       );
 
+
     box.innerHTML =
-      '<div class="empty">불러오는 중...</div>';
+      '<div class="empty">' +
+      '불러오는 중...' +
+      '</div>';
+
 
     try {
 
       const result =
-        await api("getMemos");
+        await api(
+          "getMemos"
+        );
 
-      memos =
-        result.memos || [];
+
+      const data =
+        getApiData(
+          result,
+          []
+        );
+
+
+      if (
+        Array.isArray(data)
+      ) {
+
+        memos = data;
+
+      } else if (
+        data &&
+        Array.isArray(
+          data.memos
+        )
+      ) {
+
+        memos =
+          data.memos;
+
+      } else {
+
+        memos =
+          result.memos ||
+          [];
+
+      }
+
 
       renderMemos();
 
@@ -1637,12 +2435,15 @@
 
       box.innerHTML =
         '<div class="empty">' +
-        escapeHtml(error.message) +
+        escapeHtml(
+          error.message
+        ) +
         '</div>';
 
     }
 
   }
+
 
 
   function renderMemos() {
@@ -1652,58 +2453,95 @@
         "memoList"
       );
 
+
     if (!memos.length) {
 
       box.innerHTML =
-        '<div class="empty">등록된 메모가 없습니다.</div>';
+        '<div class="empty">' +
+        '등록된 메모가 없습니다.' +
+        '</div>';
 
       return;
     }
 
 
     box.innerHTML =
-      memos.map(function(item) {
+      memos.map(
+        function(item) {
 
-        return `
-          <div class="item">
+          const id =
+            getItemId(item);
 
-            <div class="item-main">
-              📝 ${escapeHtml(item.memo || "")}
+
+          return `
+            <div class="item">
+
+              <div class="item-main">
+                📝 ${escapeHtml(
+                  item.memo || ""
+                )}
+              </div>
+
+
+              <div class="item-meta">
+
+                ${escapeHtml(
+                  item.date || ""
+                )}
+
+
+                ${
+                  item.note
+                    ? "<br>비고: " +
+                      escapeHtml(
+                        item.note
+                      )
+                    : ""
+                }
+
+
+                <br>
+
+                등록자:
+
+                ${escapeHtml(
+                  item.registrant ||
+                  item.registeredBy ||
+                  ""
+                )}
+
+              </div>
+
+
+              <div class="item-actions">
+
+                <button
+                  class="small-btn"
+                  onclick='openEdit("memo", ${JSON.stringify(id)})'>
+
+                  수정
+
+                </button>
+
+
+                <button
+                  class="small-btn delete"
+                  onclick='deleteMemo(${JSON.stringify(id)})'>
+
+                  삭제
+
+                </button>
+
+              </div>
+
             </div>
+          `;
 
-            <div class="item-meta">
-              ${escapeHtml(item.date || "")}
-              ${item.note
-                ? "<br>비고: " +
-                  escapeHtml(item.note)
-                : ""}
-              <br>
-              등록자:
-              ${escapeHtml(item.registrant || "")}
-            </div>
-
-            <div class="item-actions">
-
-              <button
-                class="small-btn"
-                onclick="openEdit('memo', ${item.row})">
-                수정
-              </button>
-
-              <button
-                class="small-btn delete"
-                onclick="deleteMemo(${item.row})">
-                삭제
-              </button>
-
-            </div>
-
-          </div>
-        `;
-
-      }).join("");
+        }
+      ).join("");
 
   }
+
 
 
   async function addMemo() {
@@ -1713,10 +2551,12 @@
         "memoDate"
       ).value;
 
+
     const memo =
       document.getElementById(
         "memoText"
       ).value.trim();
+
 
     const note =
       document.getElementById(
@@ -1736,6 +2576,7 @@
 
     showLoading(true);
 
+
     try {
 
       await api(
@@ -1747,21 +2588,29 @@
         }
       );
 
+
       document.getElementById(
         "memoText"
       ).value = "";
+
 
       document.getElementById(
         "memoNote"
       ).value = "";
 
-      alert("메모가 등록되었습니다.");
+
+      alert(
+        "메모가 등록되었습니다."
+      );
+
 
       await loadMemos();
 
     } catch (error) {
 
-      alert(error.message);
+      alert(
+        error.message
+      );
 
     } finally {
 
@@ -1772,28 +2621,39 @@
   }
 
 
-  async function deleteMemo(row) {
 
-    if (!confirm("이 메모를 삭제할까요?")) {
+  async function deleteMemo(id) {
+
+    if (
+      !confirm(
+        "이 메모를 삭제할까요?"
+      )
+    ) {
       return;
     }
 
+
     showLoading(true);
+
 
     try {
 
       await api(
         "deleteMemo",
         {
-          row: row
+          id: id,
+          row: id
         }
       );
+
 
       await loadMemos();
 
     } catch (error) {
 
-      alert(error.message);
+      alert(
+        error.message
+      );
 
     } finally {
 
@@ -1804,38 +2664,127 @@
   }
 
 
+
   /*
    * 수정
    */
 
-  function openEdit(type, row) {
+  function openEdit(
+    type,
+    id
+  ) {
 
     let data = null;
+
+
+    const numericId =
+      Number(id);
+
 
     if (type === "schedule") {
 
       data =
-        schedules.find(function(item) {
-          return Number(item.row) === Number(row);
-        });
+        schedules.find(
+          function(item) {
+
+            return (
+              String(
+                getItemId(item)
+              ) === String(id)
+            );
+
+          }
+        );
+
+
+      if (!data) {
+
+        data =
+          schedules.find(
+            function(item) {
+
+              return (
+                Number(
+                  item.row
+                ) === numericId
+              );
+
+            }
+          );
+
+      }
 
     }
+
 
     if (type === "settlement") {
 
       data =
-        settlements.find(function(item) {
-          return Number(item.row) === Number(row);
-        });
+        settlements.find(
+          function(item) {
+
+            return (
+              String(
+                getItemId(item)
+              ) === String(id)
+            );
+
+          }
+        );
+
+
+      if (!data) {
+
+        data =
+          settlements.find(
+            function(item) {
+
+              return (
+                Number(
+                  item.row
+                ) === numericId
+              );
+
+            }
+          );
+
+      }
 
     }
+
 
     if (type === "memo") {
 
       data =
-        memos.find(function(item) {
-          return Number(item.row) === Number(row);
-        });
+        memos.find(
+          function(item) {
+
+            return (
+              String(
+                getItemId(item)
+              ) === String(id)
+            );
+
+          }
+        );
+
+
+      if (!data) {
+
+        data =
+          memos.find(
+            function(item) {
+
+              return (
+                Number(
+                  item.row
+                ) === numericId
+              );
+
+            }
+          );
+
+      }
 
     }
 
@@ -1850,9 +2799,16 @@
     }
 
 
-    editType = type;
-    editRow = row;
-    editData = data;
+    editType =
+      type;
+
+
+    editRow =
+      getItemId(data);
+
+
+    editData =
+      data;
 
 
     const fields =
@@ -1861,111 +2817,180 @@
       );
 
 
+
     if (type === "schedule") {
 
       document.getElementById(
         "modalTitle"
-      ).textContent = "일정 수정";
+      ).textContent =
+        "일정 수정";
+
 
       fields.innerHTML = `
 
         <div class="field">
+
           <label>날짜</label>
+
           <input
             id="editDate"
             type="date"
-            value="${escapeHtml(data.date || "")}">
+            value="${escapeHtml(
+              data.date || ""
+            )}">
+
         </div>
 
+
         <div class="field">
+
           <label>시간</label>
+
           <input
             id="editTime"
             type="time"
-            value="${escapeHtml(data.time || "")}">
+            value="${escapeHtml(
+              data.time || ""
+            )}">
+
         </div>
 
+
         <div class="field">
+
           <label>일정</label>
+
           <input
             id="editTitle"
-            value="${escapeHtml(data.title || data.schedule || "")}">
+            value="${escapeHtml(
+              data.title ||
+              data.schedule ||
+              ""
+            )}">
+
         </div>
 
       `;
 
     }
+
 
 
     if (type === "settlement") {
 
       document.getElementById(
         "modalTitle"
-      ).textContent = "정산 수정";
+      ).textContent =
+        "정산 수정";
+
 
       fields.innerHTML = `
 
         <div class="field">
+
           <label>날짜</label>
+
           <input
             id="editDate"
             type="date"
-            value="${escapeHtml(data.date || "")}">
+            value="${escapeHtml(
+              data.date || ""
+            )}">
+
         </div>
 
+
         <div class="field">
+
           <label>내용</label>
+
           <input
             id="editContent"
-            value="${escapeHtml(data.content || "")}">
+            value="${escapeHtml(
+              data.content || ""
+            )}">
+
         </div>
 
+
         <div class="field">
+
           <label>금액</label>
+
           <input
             id="editAmount"
             type="number"
-            value="${escapeHtml(data.amount || "")}">
+            value="${escapeHtml(
+              data.amount || ""
+            )}">
+
         </div>
 
+
         <div class="field">
+
           <label>비고</label>
+
           <input
             id="editNote"
-            value="${escapeHtml(data.note || "")}">
+            value="${escapeHtml(
+              data.note || ""
+            )}">
+
         </div>
 
       `;
 
     }
+
 
 
     if (type === "memo") {
 
       document.getElementById(
         "modalTitle"
-      ).textContent = "메모 수정";
+      ).textContent =
+        "메모 수정";
+
 
       fields.innerHTML = `
 
         <div class="field">
+
           <label>날짜</label>
+
           <input
             id="editDate"
             type="date"
-            value="${escapeHtml(data.date || "")}">
+            value="${escapeHtml(
+              data.date || ""
+            )}">
+
         </div>
 
+
         <div class="field">
+
           <label>메모</label>
-          <textarea id="editMemo">${escapeHtml(data.memo || "")}</textarea>
+
+          <textarea
+            id="editMemo">${escapeHtml(
+              data.memo || ""
+            )}</textarea>
+
         </div>
 
+
         <div class="field">
+
           <label>비고</label>
+
           <input
             id="editNote"
-            value="${escapeHtml(data.note || "")}">
+            value="${escapeHtml(
+              data.note || ""
+            )}">
+
         </div>
 
       `;
@@ -1974,46 +2999,77 @@
 
 
     document
-      .getElementById("editModal")
+      .getElementById(
+        "editModal"
+      )
       .classList.add("show");
 
   }
 
 
+
   function closeModal() {
 
     document
-      .getElementById("editModal")
-      .classList.remove("show");
+      .getElementById(
+        "editModal"
+      )
+      .classList.remove(
+        "show"
+      );
 
-    editType = "";
-    editRow = null;
-    editData = null;
+
+    editType =
+      "";
+
+
+    editRow =
+      null;
+
+
+    editData =
+      null;
 
   }
 
 
+
   async function saveEdit() {
 
-    if (!editType || editRow === null) {
+    if (
+      !editType ||
+      editRow === null ||
+      editRow === undefined
+    ) {
       return;
     }
 
+
     showLoading(true);
+
 
     try {
 
-      if (editType === "schedule") {
+
+      /*
+       * 일정 수정
+       */
+
+      if (
+        editType === "schedule"
+      ) {
 
         const date =
           document.getElementById(
             "editDate"
           ).value;
 
+
         const time =
           document.getElementById(
             "editTime"
           ).value;
+
 
         const title =
           document.getElementById(
@@ -2022,15 +3078,18 @@
 
 
         if (!date || !title) {
+
           throw new Error(
             "날짜와 일정을 입력해주세요."
           );
+
         }
 
 
         await api(
           "updateSchedule",
           {
+            id: editRow,
             row: editRow,
             date: date,
             time: time,
@@ -2041,27 +3100,38 @@
 
         closeModal();
 
+
         await loadSchedules();
 
       }
 
 
-      if (editType === "settlement") {
+
+      /*
+       * 정산 수정
+       */
+
+      if (
+        editType === "settlement"
+      ) {
 
         const date =
           document.getElementById(
             "editDate"
           ).value;
 
+
         const content =
           document.getElementById(
             "editContent"
           ).value.trim();
 
+
         const amount =
           document.getElementById(
             "editAmount"
           ).value;
+
 
         const note =
           document.getElementById(
@@ -2069,16 +3139,23 @@
           ).value.trim();
 
 
-        if (!date || !content || !amount) {
+        if (
+          !date ||
+          !content ||
+          !amount
+        ) {
+
           throw new Error(
             "날짜, 내용, 금액을 입력해주세요."
           );
+
         }
 
 
         await api(
           "updateSettlement",
           {
+            id: editRow,
             row: editRow,
             date: date,
             content: content,
@@ -2090,22 +3167,32 @@
 
         closeModal();
 
+
         await loadSettlements();
 
       }
 
 
-      if (editType === "memo") {
+
+      /*
+       * 메모 수정
+       */
+
+      if (
+        editType === "memo"
+      ) {
 
         const date =
           document.getElementById(
             "editDate"
           ).value;
 
+
         const memo =
           document.getElementById(
             "editMemo"
           ).value.trim();
+
 
         const note =
           document.getElementById(
@@ -2114,15 +3201,18 @@
 
 
         if (!date || !memo) {
+
           throw new Error(
             "날짜와 메모를 입력해주세요."
           );
+
         }
 
 
         await api(
           "updateMemo",
           {
+            id: editRow,
             row: editRow,
             date: date,
             memo: memo,
@@ -2133,6 +3223,7 @@
 
         closeModal();
 
+
         await loadMemos();
 
       }
@@ -2140,7 +3231,9 @@
 
     } catch (error) {
 
-      alert(error.message);
+      alert(
+        error.message
+      );
 
     } finally {
 
@@ -2149,6 +3242,7 @@
     }
 
   }
+
 
 
   /*
@@ -2162,6 +3256,7 @@
   }
 
 
+
   async function loadNews() {
 
     const box =
@@ -2169,72 +3264,145 @@
         "newsList"
       );
 
+
     box.innerHTML =
-      '<div class="empty">뉴스를 불러오는 중...</div>';
+      '<div class="empty">' +
+      '뉴스를 불러오는 중...' +
+      '</div>';
+
 
     showLoading(true);
+
 
     try {
 
       const result =
-        await api("getNews");
+        await api(
+          "getNews"
+        );
+
+
+      const data =
+        getApiData(
+          result,
+          {}
+        );
+
 
       const items =
-        result.items ||
-        result.news ||
-        [];
+        Array.isArray(data)
+          ? data
+          : (
+              data.items ||
+              data.news ||
+              result.items ||
+              result.news ||
+              []
+            );
+
+
+      const briefing =
+        !Array.isArray(data)
+          ? (
+              data.briefing ||
+              result.briefing ||
+              ""
+            )
+          : "";
+
+
+      let html = "";
+
+
+      if (briefing) {
+
+        html +=
+          '<div class="news-briefing">' +
+          escapeHtml(
+            briefing
+          ) +
+          '</div>';
+
+      }
 
 
       if (!items.length) {
 
-        box.innerHTML =
-          '<div class="empty">뉴스가 없습니다.</div>';
+        if (!briefing) {
+
+          box.innerHTML =
+            '<div class="empty">' +
+            '뉴스가 없습니다.' +
+            '</div>';
+
+        } else {
+
+          box.innerHTML =
+            html;
+
+        }
+
 
         return;
       }
 
 
+      html +=
+        items.map(
+          function(item) {
+
+            const title =
+              item.title ||
+              item.name ||
+              "";
+
+
+            const date =
+              item.pubDate ||
+              item.date ||
+              "";
+
+
+            const link =
+              item.link ||
+              "";
+
+
+            return `
+              <div
+                class="news-card"
+                onclick='openNews(${JSON.stringify(link)})'>
+
+                <div class="news-title">
+                  ${escapeHtml(
+                    title
+                  )}
+                </div>
+
+                <div class="news-meta">
+                  ${escapeHtml(
+                    date
+                  )}
+                </div>
+
+              </div>
+            `;
+
+          }
+        ).join("");
+
+
       box.innerHTML =
-        items.map(function(item) {
-
-          const title =
-            item.title ||
-            item.name ||
-            "";
-
-          const date =
-            item.pubDate ||
-            item.date ||
-            "";
-
-
-          let link = item.link || "#";
-
-
-          return `
-            <div
-              class="news-card"
-              onclick="openNews('${escapeHtml(link)}')">
-
-              <div class="news-title">
-                ${escapeHtml(title)}
-              </div>
-
-              <div class="news-meta">
-                ${escapeHtml(date)}
-              </div>
-
-            </div>
-          `;
-
-        }).join("");
+        html;
 
 
     } catch (error) {
 
       box.innerHTML =
         '<div class="empty">' +
-        escapeHtml(error.message) +
+        escapeHtml(
+          error.message
+        ) +
         '</div>';
 
     } finally {
@@ -2246,19 +3414,37 @@
   }
 
 
+
   function openNews(url) {
 
-    if (!url || url === "#") {
+    if (
+      !url ||
+      url === "#"
+    ) {
       return;
     }
 
-    if (tg && tg.openLink) {
-      tg.openLink(url);
+
+    if (
+      tg &&
+      tg.openLink
+    ) {
+
+      tg.openLink(
+        url
+      );
+
     } else {
-      window.open(url, "_blank");
+
+      window.open(
+        url,
+        "_blank"
+      );
+
     }
 
   }
+
 
 
   /*
@@ -2292,32 +3478,54 @@
         await api(
           "askAI",
           {
-            question: question
+            question:
+              question
           }
         );
 
 
+      const data =
+        getApiData(
+          result,
+          ""
+        );
+
+
       const answer =
-        result.answer ||
-        result.text ||
-        "응답이 없습니다.";
+        typeof data === "string"
+          ? data
+          : (
+              data.answer ||
+              data.text ||
+              result.answer ||
+              result.text ||
+              "응답이 없습니다."
+            );
 
 
-      document.getElementById(
-        "aiAnswer"
-      ).innerHTML =
+      document
+        .getElementById(
+          "aiAnswer"
+        )
+        .innerHTML =
         '<div class="ai-answer">' +
-        escapeHtml(answer) +
+        escapeHtml(
+          answer
+        ) +
         '</div>';
 
 
     } catch (error) {
 
-      document.getElementById(
-        "aiAnswer"
-      ).innerHTML =
+      document
+        .getElementById(
+          "aiAnswer"
+        )
+        .innerHTML =
         '<div class="ai-answer">' +
-        escapeHtml(error.message) +
+        escapeHtml(
+          error.message
+        ) +
         '</div>';
 
     } finally {
@@ -2329,23 +3537,28 @@
   }
 
 
+
   /*
    * 초기값
    */
 
   function setDefaultDates() {
 
-    const t = today();
+    const t =
+      today();
+
 
     const scheduleDate =
       document.getElementById(
         "scheduleDate"
       );
 
+
     const settlementDate =
       document.getElementById(
         "settlementDate"
       );
+
 
     const memoDate =
       document.getElementById(
@@ -2357,15 +3570,97 @@
       scheduleDate.value = t;
     }
 
+
     if (settlementDate) {
       settlementDate.value = t;
     }
+
 
     if (memoDate) {
       memoDate.value = t;
     }
 
   }
+
+
+
+  /*
+   * Telegram 햅틱
+   */
+
+  function haptic() {
+
+    try {
+
+      if (
+        tg &&
+        tg.HapticFeedback
+      ) {
+
+        tg.HapticFeedback
+          .impactOccurred(
+            "light"
+          );
+
+      }
+
+    } catch (e) {}
+
+  }
+
+
+
+  /*
+   * 버튼 클릭 시 햅틱
+   */
+
+  document.addEventListener(
+    "click",
+    function(event) {
+
+      const target =
+        event.target;
+
+
+      if (
+        target &&
+        target.closest &&
+        target.closest("button")
+      ) {
+
+        haptic();
+
+      }
+
+    }
+  );
+
+
+
+  /*
+   * 모달 바깥 클릭
+   */
+
+  document
+    .getElementById(
+      "editModal"
+    )
+    .addEventListener(
+      "click",
+      function(event) {
+
+        if (
+          event.target ===
+          this
+        ) {
+
+          closeModal();
+
+        }
+
+      }
+    );
+
 
 
   /*
@@ -2379,11 +3674,14 @@
       const ok =
         initTelegram();
 
+
       if (!ok) {
         return;
       }
 
+
       setDefaultDates();
+
 
       await loadHome();
 
