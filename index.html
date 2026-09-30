@@ -425,7 +425,7 @@
       display: none !important;
     }
 
-    /* 정산 체크박스 & 계산 패널 스타일 */
+    /* 정산 전용 스타일 */
     .settlement-card-header {
       display: flex;
       align-items: flex-start;
@@ -445,6 +445,42 @@
       border-radius: 16px;
       padding: 16px;
       margin-bottom: 15px;
+    }
+
+    .filter-bar {
+      background: white;
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 15px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .filter-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .filter-btn-group {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .filter-tag-btn {
+      flex: 1;
+      padding: 7px;
+      border-radius: 8px;
+      background: #f3f4f6;
+      color: #4b5563;
+      font-size: 11px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .filter-tag-btn.active {
+      background: #111827;
+      color: white;
     }
   </style>
 </head>
@@ -553,7 +589,7 @@
         </div>
 
         <div style="margin-bottom:10px;">
-          <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:4px;">참여 멤버 (쉼표로 구분)</label>
+          <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:4px;">참여 멤버 (쉼표 구분)</label>
           <input id="calcParticipants" placeholder="예: 철수, 영희, 민수 (비워두면 결제자들끼리 N빵)"
                  style="width:100%; padding:10px; border-radius:9px; border:0; outline:none; font-size:13px; color:#111827;">
         </div>
@@ -566,9 +602,25 @@
         <div id="calcResultBox" style="margin-top:14px; padding-top:12px; border-top:1px solid #334155; display:none;"></div>
       </div>
 
+      <!-- 신규: 기간 설정 필터 바 -->
+      <div class="filter-bar">
+        <div style="font-weight:700; font-size:13px; margin-bottom:8px; color:#374151;">📅 정산 기간 조회</div>
+        <div class="filter-row">
+          <input id="filterStartDate" type="date" onchange="applyDateFilter()" style="flex:1; padding:8px; font-size:12px; border:1px solid #d1d5db; border-radius:8px;">
+          <span style="color:#9ca3af;">~</span>
+          <input id="filterEndDate" type="date" onchange="applyDateFilter()" style="flex:1; padding:8px; font-size:12px; border:1px solid #d1d5db; border-radius:8px;">
+        </div>
+        <div class="filter-btn-group">
+          <button class="filter-tag-btn" onclick="setQuickDateRange('7d')">최근 7일</button>
+          <button class="filter-tag-btn" onclick="setQuickDateRange('1m')">최근 1개월</button>
+          <button class="filter-tag-btn" onclick="setQuickDateRange('thisMonth')">이번 달</button>
+          <button class="filter-tag-btn" onclick="setQuickDateRange('all')">전체</button>
+        </div>
+      </div>
+
       <!-- 지출 등록 폼 -->
       <div class="form">
-        <div class="form-title">지출 내역 등록</div>
+        <div class="form-title">새 지출 내역 등록</div>
         <div class="field">
           <label>날짜</label>
           <input id="settlementDate" type="date">
@@ -588,7 +640,7 @@
         <button class="primary-btn" onclick="addSettlement()">지출 등록</button>
       </div>
 
-      <div class="section-title">정산 대상 지출 목록 (체크박스로 선택)</div>
+      <div class="section-title" id="settlementListTitle">지출 내역 목록 (선택하여 정산)</div>
       <div id="settlementList" class="list"></div>
     </section>
 
@@ -804,9 +856,12 @@
     showPage(currentPage);
   }
 
-  function today() {
-    const d = new Date();
+  function formatDate(d) {
     return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+
+  function today() {
+    return formatDate(new Date());
   }
 
   function escapeHtml(value) {
@@ -922,7 +977,7 @@
     }
   }
 
-  /* 정산 & 송금 계산 */
+  /* 정산 & 기간 필터링 */
   async function loadSettlements() {
     const box = document.getElementById("settlementList");
     box.innerHTML = '<div class="empty">불러오는 중...</div>';
@@ -930,21 +985,76 @@
       const result = await api("getSettlements");
       const data = getApiData(result, []);
       settlements = Array.isArray(data) ? data : (data.settlements || result.settlements || []);
-      renderSettlements();
+      
+      // 초기 기간이 안 잡혀 있으면 최근 1개월로 기본 세팅
+      if (!document.getElementById("filterStartDate").value) {
+        setQuickDateRange('1m', false);
+      } else {
+        applyDateFilter();
+      }
       document.getElementById("calcResultBox").style.display = "none";
     } catch (error) {
       box.innerHTML = '<div class="empty">' + escapeHtml(error.message) + '</div>';
     }
   }
 
-  function renderSettlements() {
+  /* 빠른 기간 선택 */
+  function setQuickDateRange(rangeType, triggerFilter = true) {
+    const now = new Date();
+    const end = formatDate(now);
+    let start = "";
+
+    if (rangeType === '7d') {
+      const d = new Date();
+      d.setDate(d.getDate() - 7);
+      start = formatDate(d);
+    } else if (rangeType === '1m') {
+      const d = new Date();
+      d.setMonth(d.getMonth() - 1);
+      start = formatDate(d);
+    } else if (rangeType === 'thisMonth') {
+      start = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-01";
+    } else if (rangeType === 'all') {
+      start = "";
+    }
+
+    document.getElementById("filterStartDate").value = start;
+    document.getElementById("filterEndDate").value = rangeType === 'all' ? "" : end;
+
+    if (triggerFilter) {
+      applyDateFilter();
+    }
+  }
+
+  /* 날짜 필터 적용 */
+  function applyDateFilter() {
+    const sDate = document.getElementById("filterStartDate").value;
+    const eDate = document.getElementById("filterEndDate").value;
+
+    let filtered = settlements;
+    if (sDate) {
+      filtered = filtered.filter(item => String(item.date || "") >= sDate);
+    }
+    if (eDate) {
+      filtered = filtered.filter(item => String(item.date || "") <= eDate);
+    }
+
+    renderSettlements(filtered);
+  }
+
+  function renderSettlements(listToRender = settlements) {
     const box = document.getElementById("settlementList");
-    if (!settlements.length) {
-      box.innerHTML = '<div class="empty">등록된 지출 내역이 없습니다.</div>';
+    const countTitle = document.getElementById("settlementListTitle");
+    if (countTitle) {
+      countTitle.textContent = `지출 내역 목록 (${listToRender.length}건)`;
+    }
+
+    if (!listToRender.length) {
+      box.innerHTML = '<div class="empty">설정한 기간에 해당하는 지출 내역이 없습니다.</div>';
       return;
     }
 
-    box.innerHTML = settlements.map(item => {
+    box.innerHTML = listToRender.map(item => {
       const id = getItemId(item);
       const amount = Number(item.amount || 0);
       const amountText = Number.isFinite(amount) ? amount.toLocaleString("ko-KR") + "원" : escapeHtml(item.amount || "");
