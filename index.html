@@ -29,10 +29,7 @@
       color: #111827;
     }
 
-    button,
-    input,
-    textarea,
-    select {
+    button, input, textarea, select {
       font: inherit;
     }
 
@@ -427,6 +424,28 @@
     .hidden {
       display: none !important;
     }
+
+    /* 정산 체크박스 & 계산 패널 스타일 */
+    .settlement-card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .settlement-checkbox {
+      width: 20px;
+      height: 20px;
+      margin-top: 2px;
+      accent-color: #111827;
+    }
+
+    .calc-panel {
+      background: #1e293b;
+      color: white;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 15px;
+    }
   </style>
 </head>
 
@@ -439,9 +458,7 @@
 <div id="outsideTelegram" class="hidden">
   <div style="padding:40px 20px;text-align:center;">
     <div style="font-size:50px;margin-bottom:15px;">🤖</div>
-
     <h2>긴급대책AI</h2>
-
     <p style="color:#6b7280;line-height:1.6;">
       Telegram 앱 안에서<br>
       긴급대책AI 메뉴 버튼으로 열어주세요.
@@ -449,3245 +466,865 @@
   </div>
 </div>
 
-
 <div id="app" class="app hidden">
-
   <header class="header">
-
     <div class="header-row">
-
       <div>
         <div class="title">긴급대책AI</div>
-        <div id="userName" class="user-name">
-          로그인 확인 중...
-        </div>
+        <div id="userName" class="user-name">로그인 확인 중...</div>
       </div>
-
-      <button
-        class="refresh-btn"
-        onclick="refreshCurrent()">
-        ↻
-      </button>
-
+      <button class="refresh-btn" onclick="refreshCurrent()">↻</button>
     </div>
-
   </header>
-
 
   <main class="content">
 
-
     <!-- 홈 -->
     <section id="page-home" class="page active">
-
       <div class="welcome">
-
-        <div class="welcome-title">
-          긴급대책AI
-        </div>
-
-        <div class="welcome-text">
-          일정, 정산, 메모를 한 곳에서 관리하세요.
-        </div>
-
+        <div class="welcome-title">긴급대책AI</div>
+        <div class="welcome-text">일정, 정산, 메모를 한 곳에서 관리하세요.</div>
       </div>
-
 
       <div class="card-grid">
-
-        <button
-          class="menu-card"
-          onclick="showPage('schedule')">
-
+        <button class="menu-card" onclick="showPage('schedule')">
           <div class="menu-icon">📅</div>
-
-          <div class="menu-title">
-            일정
-          </div>
-
-          <div class="menu-desc">
-            일정 등록·수정·삭제
-          </div>
-
+          <div class="menu-title">일정</div>
+          <div class="menu-desc">일정 등록·수정·삭제</div>
         </button>
 
-
-        <button
-          class="menu-card"
-          onclick="showPage('settlement')">
-
+        <button class="menu-card" onclick="showPage('settlement')">
           <div class="menu-icon">💰</div>
-
-          <div class="menu-title">
-            정산
-          </div>
-
-          <div class="menu-desc">
-            비용과 지출 관리
-          </div>
-
+          <div class="menu-title">정산</div>
+          <div class="menu-desc">비용 분담 및 송금 계산</div>
         </button>
 
-
-        <button
-          class="menu-card"
-          onclick="showPage('memo')">
-
+        <button class="menu-card" onclick="showPage('memo')">
           <div class="menu-icon">📝</div>
-
-          <div class="menu-title">
-            메모
-          </div>
-
-          <div class="menu-desc">
-            공유 메모 관리
-          </div>
-
+          <div class="menu-title">메모</div>
+          <div class="menu-desc">공유 메모 관리</div>
         </button>
 
-
-        <button
-          class="menu-card"
-          onclick="showNews()">
-
+        <button class="menu-card" onclick="showNews()">
           <div class="menu-icon">📰</div>
-
-          <div class="menu-title">
-            뉴스
-          </div>
-
-          <div class="menu-desc">
-            오늘의 주요 뉴스
-          </div>
-
+          <div class="menu-title">뉴스</div>
+          <div class="menu-desc">오늘의 모닝 브리핑</div>
         </button>
-
       </div>
 
+      <div class="section-title">AI에게 물어보기</div>
+      <button class="primary-btn" onclick="showPage('ai')">🤖 긴급대책AI에게 질문</button>
 
-      <div class="section-title">
-        AI에게 물어보기
-      </div>
-
-      <button
-        class="primary-btn"
-        onclick="showPage('ai')">
-
-        🤖 긴급대책AI에게 질문
-
-      </button>
-
-
-      <div class="section-title">
-        오늘의 일정
-      </div>
-
+      <div class="section-title">오늘의 일정</div>
       <div id="homeSchedules"></div>
-
     </section>
-
-
 
     <!-- 일정 -->
     <section id="page-schedule" class="page">
-
-      <div class="section-title">
-        일정 관리
-      </div>
-
-
+      <div class="section-title">일정 관리</div>
       <div class="form">
-
-        <div class="form-title">
-          일정 등록
-        </div>
-
-
+        <div class="form-title">일정 등록</div>
         <div class="field">
-
           <label>날짜</label>
-
-          <input
-            id="scheduleDate"
-            type="date">
-
+          <input id="scheduleDate" type="date">
         </div>
-
-
         <div class="field">
-
           <label>시간</label>
-
-          <input
-            id="scheduleTime"
-            type="time">
-
+          <input id="scheduleTime" type="time">
         </div>
-
-
         <div class="field">
-
           <label>일정</label>
-
-          <input
-            id="scheduleTitle"
-            placeholder="예: 회의">
-
+          <input id="scheduleTitle" placeholder="예: 회의">
         </div>
-
-
-        <button
-          class="primary-btn"
-          onclick="addSchedule()">
-
-          일정 등록
-
-        </button>
-
+        <button class="primary-btn" onclick="addSchedule()">일정 등록</button>
       </div>
-
-
-      <div
-        id="scheduleList"
-        class="list">
-      </div>
-
+      <div id="scheduleList" class="list"></div>
     </section>
-
-
 
     <!-- 정산 -->
     <section id="page-settlement" class="page">
+      <div class="section-title">스마트 N빵 정산</div>
 
-      <div class="section-title">
-        정산 관리
+      <!-- 정산 계산기 패널 -->
+      <div class="calc-panel">
+        <div style="font-weight:800; font-size:15px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+          <span>💡 정산 송금 계산기</span>
+          <span style="font-size:11px; opacity:0.8;">결제자 = 등록자</span>
+        </div>
+
+        <div style="margin-bottom:10px;">
+          <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:4px;">참여 멤버 (쉼표로 구분)</label>
+          <input id="calcParticipants" placeholder="예: 철수, 영희, 민수 (비워두면 결제자들끼리 N빵)"
+                 style="width:100%; padding:10px; border-radius:9px; border:0; outline:none; font-size:13px; color:#111827;">
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
+          <button class="small-btn" onclick="toggleSelectAllSettlements()" style="background:#334155; color:white;">전체선택/해제</button>
+          <button class="small-btn" onclick="runSettlementCalc()" style="background:#38bdf8; color:#0f172a; font-weight:800;">송금 계산 실행</button>
+        </div>
+
+        <div id="calcResultBox" style="margin-top:14px; padding-top:12px; border-top:1px solid #334155; display:none;"></div>
       </div>
 
-
+      <!-- 지출 등록 폼 -->
       <div class="form">
-
-        <div class="form-title">
-          정산 등록
-        </div>
-
-
+        <div class="form-title">지출 내역 등록</div>
         <div class="field">
-
           <label>날짜</label>
-
-          <input
-            id="settlementDate"
-            type="date">
-
+          <input id="settlementDate" type="date">
         </div>
-
-
         <div class="field">
-
           <label>내용</label>
-
-          <input
-            id="settlementContent"
-            placeholder="예: 식비">
-
+          <input id="settlementContent" placeholder="예: 1차 식사">
         </div>
-
-
         <div class="field">
-
-          <label>금액</label>
-
-          <input
-            id="settlementAmount"
-            type="number"
-            inputmode="numeric"
-            placeholder="예: 35000">
-
+          <label>결제 금액</label>
+          <input id="settlementAmount" type="number" inputmode="numeric" placeholder="예: 60000">
         </div>
-
-
         <div class="field">
-
           <label>비고</label>
-
-          <input
-            id="settlementNote"
-            placeholder="선택사항">
-
+          <input id="settlementNote" placeholder="선택사항 (예: 대리결제)">
         </div>
-
-
-        <button
-          class="primary-btn"
-          onclick="addSettlement()">
-
-          정산 등록
-
-        </button>
-
+        <button class="primary-btn" onclick="addSettlement()">지출 등록</button>
       </div>
 
-
-      <div
-        id="settlementList"
-        class="list">
-      </div>
-
+      <div class="section-title">정산 대상 지출 목록 (체크박스로 선택)</div>
+      <div id="settlementList" class="list"></div>
     </section>
-
-
 
     <!-- 메모 -->
     <section id="page-memo" class="page">
-
-      <div class="section-title">
-        공유 메모
-      </div>
-
-
+      <div class="section-title">공유 메모</div>
       <div class="form">
-
-        <div class="form-title">
-          메모 등록
-        </div>
-
-
+        <div class="form-title">메모 등록</div>
         <div class="field">
-
           <label>날짜</label>
-
-          <input
-            id="memoDate"
-            type="date">
-
+          <input id="memoDate" type="date">
         </div>
-
-
         <div class="field">
-
           <label>메모</label>
-
-          <textarea
-            id="memoText"
-            placeholder="공유할 내용을 입력하세요">
-          </textarea>
-
+          <textarea id="memoText" placeholder="공유할 내용을 입력하세요"></textarea>
         </div>
-
-
         <div class="field">
-
           <label>비고</label>
-
-          <input
-            id="memoNote"
-            placeholder="선택사항">
-
+          <input id="memoNote" placeholder="선택사항">
         </div>
-
-
-        <button
-          class="primary-btn"
-          onclick="addMemo()">
-
-          메모 등록
-
-        </button>
-
+        <button class="primary-btn" onclick="addMemo()">메모 등록</button>
       </div>
-
-
-      <div
-        id="memoList"
-        class="list">
-      </div>
-
+      <div id="memoList" class="list"></div>
     </section>
-
-
 
     <!-- 뉴스 -->
     <section id="page-news" class="page">
-
-      <div class="section-title">
-        오늘의 뉴스
-      </div>
-
-
-      <button
-        class="primary-btn"
-        onclick="loadNews()">
-
-        📰 최신 뉴스 불러오기
-
-      </button>
-
-
+      <div class="section-title">오늘의 뉴스</div>
+      <button class="primary-btn" onclick="loadNews()">📰 최신 뉴스 새로고침</button>
       <div id="newsList"></div>
-
     </section>
-
-
 
     <!-- AI -->
     <section id="page-ai" class="page">
-
-      <div class="section-title">
-        긴급대책AI
-      </div>
-
-
+      <div class="section-title">긴급대책AI</div>
       <div class="notice">
-
-        일정, 정산, 뉴스, 상황 판단 등에 대해
-        자유롭게 질문하세요.
-
+        일정, 정산, 뉴스, 상황 판단 등에 대해 자유롭게 질문하세요.
       </div>
-
-
       <div class="form">
-
         <div class="field">
-
           <label>질문</label>
-
-          <textarea
-            id="aiQuestion"
-            placeholder="예: 오늘 일정과 관련해서 주의할 점을 정리해줘.">
-          </textarea>
-
+          <textarea id="aiQuestion" placeholder="예: 오늘 일정과 관련해서 주의할 점을 정리해줘."></textarea>
         </div>
-
-
-        <button
-          class="primary-btn"
-          onclick="askAI()">
-
-          🤖 AI에게 질문
-
-        </button>
-
+        <button class="primary-btn" onclick="askAI()">🤖 AI에게 질문</button>
       </div>
-
-
       <div id="aiAnswer"></div>
-
     </section>
-
   </main>
 
-
-
-  <!-- 하단 메뉴 -->
   <nav class="bottom-nav">
-
-    <button
-      id="nav-home"
-      class="nav-btn active"
-      onclick="showPage('home')">
-
-      <span class="nav-icon">🏠</span>
-      홈
-
+    <button id="nav-home" class="nav-btn active" onclick="showPage('home')">
+      <span class="nav-icon">🏠</span>홈
     </button>
-
-
-    <button
-      id="nav-schedule"
-      class="nav-btn"
-      onclick="showPage('schedule')">
-
-      <span class="nav-icon">📅</span>
-      일정
-
+    <button id="nav-schedule" class="nav-btn" onclick="showPage('schedule')">
+      <span class="nav-icon">📅</span>일정
     </button>
-
-
-    <button
-      id="nav-settlement"
-      class="nav-btn"
-      onclick="showPage('settlement')">
-
-      <span class="nav-icon">💰</span>
-      정산
-
+    <button id="nav-settlement" class="nav-btn" onclick="showPage('settlement')">
+      <span class="nav-icon">💰</span>정산
     </button>
-
-
-    <button
-      id="nav-memo"
-      class="nav-btn"
-      onclick="showPage('memo')">
-
-      <span class="nav-icon">📝</span>
-      메모
-
+    <button id="nav-memo" class="nav-btn" onclick="showPage('memo')">
+      <span class="nav-icon">📝</span>메모
     </button>
-
-
-    <button
-      id="nav-ai"
-      class="nav-btn"
-      onclick="showPage('ai')">
-
-      <span class="nav-icon">🤖</span>
-      AI
-
+    <button id="nav-ai" class="nav-btn" onclick="showPage('ai')">
+      <span class="nav-icon">🤖</span>AI
     </button>
-
   </nav>
-
 </div>
-
-
 
 <!-- 수정 모달 -->
 <div id="editModal" class="modal">
-
   <div class="modal-box">
-
     <div class="modal-header">
-
-      <div
-        id="modalTitle"
-        class="modal-title">
-        수정
-      </div>
-
-      <button
-        class="close-btn"
-        onclick="closeModal()">
-
-        ×
-
-      </button>
-
+      <div id="modalTitle" class="modal-title">수정</div>
+      <button class="close-btn" onclick="closeModal()">×</button>
     </div>
-
-
     <div id="modalFields"></div>
-
-
-    <button
-      class="primary-btn"
-      onclick="saveEdit()">
-
-      저장
-
-    </button>
-
-
-    <button
-      class="secondary-btn"
-      onclick="closeModal()">
-
-      취소
-
-    </button>
-
+    <button class="primary-btn" onclick="saveEdit()">저장</button>
+    <button class="secondary-btn" onclick="closeModal()">취소</button>
   </div>
-
 </div>
 
-
-
 <script>
-
-  /*
-   * ============================================================
-   * 긴급대책AI Mini App
-   * GitHub Pages:
-   * https://kse1116.github.io/emergency-manager/
-   * ============================================================
-   */
-
-
-  const API_URL =
-    "https://script.google.com/macros/s/AKfycby3OEfk0jjKccfdviqgePbcPSIdiWOX8ezss7g9KN52KxWoWosdRgmNUc8fL1r4y9ko/exec";
-
+  const API_URL = "https://script.google.com/macros/s/AKfycby3OEfk0jjKccfdviqgePbcPSIdiWOX8ezss7g9KN52KxWoWosdRgmNUc8fL1r4y9ko/exec";
 
   let tg = null;
-
   let initData = "";
-
   let schedules = [];
-
   let settlements = [];
-
   let memos = [];
-
   let currentPage = "home";
-
   let editType = "";
-
   let editRow = null;
-
   let editData = null;
 
-
-
-  /*
-   * Telegram 초기화
-   */
-
   function initTelegram() {
-
-    if (
-      !window.Telegram ||
-      !window.Telegram.WebApp
-    ) {
-
-      document
-        .getElementById("outsideTelegram")
-        .classList.remove("hidden");
-
+    if (!window.Telegram || !window.Telegram.WebApp) {
+      document.getElementById("outsideTelegram").classList.remove("hidden");
       return false;
     }
-
 
     tg = window.Telegram.WebApp;
-
-
-    try {
-      tg.ready();
-      tg.expand();
-    } catch (e) {}
-
-
-    initData =
-      tg.initData || "";
-
+    try { tg.ready(); tg.expand(); } catch (e) {}
+    initData = tg.initData || "";
 
     if (!initData) {
-
-      document
-        .getElementById("outsideTelegram")
-        .classList.remove("hidden");
-
+      document.getElementById("outsideTelegram").classList.remove("hidden");
       return false;
     }
 
-
-    document
-      .getElementById("app")
-      .classList.remove("hidden");
-
-
-    const user =
-      tg.initDataUnsafe &&
-      tg.initDataUnsafe.user
-        ? tg.initDataUnsafe.user
-        : null;
-
+    document.getElementById("app").classList.remove("hidden");
+    const user = tg.initDataUnsafe && tg.initDataUnsafe.user ? tg.initDataUnsafe.user : null;
 
     if (user) {
-
       let name = "";
-
-
-      if (user.first_name) {
-        name += user.first_name;
-      }
-
-
-      if (user.last_name) {
-
-        if (name) {
-          name += " ";
-        }
-
-        name += user.last_name;
-      }
-
-
-      if (user.username) {
-
-        if (name) {
-          name += " ";
-        }
-
-        name += "@" + user.username;
-      }
-
-
-      document
-        .getElementById("userName")
-        .textContent =
-        name || "Telegram 사용자";
-
+      if (user.first_name) name += user.first_name;
+      if (user.last_name) name += (name ? " " : "") + user.last_name;
+      if (user.username) name += (name ? " " : "") + "@" + user.username;
+      document.getElementById("userName").textContent = name || "Telegram 사용자";
     } else {
-
-      document
-        .getElementById("userName")
-        .textContent =
-        "Telegram 사용자";
-
+      document.getElementById("userName").textContent = "Telegram 사용자";
     }
-
 
     return true;
   }
 
-
-
-  /*
-   * JSONP API
-   */
-
   function api(action, params = {}) {
-
     return new Promise(function(resolve, reject) {
-
       if (!initData) {
-
-        reject(
-          new Error(
-            "Telegram 인증 정보가 없습니다."
-          )
-        );
-
+        reject(new Error("Telegram 인증 정보가 없습니다."));
         return;
       }
 
-
-      const callbackName =
-        "__miniAppCallback_" +
-        Date.now() +
-        "_" +
-        Math.floor(
-          Math.random() * 100000
-        );
-
-
-      const script =
-        document.createElement("script");
-
-
+      const callbackName = "__miniAppCallback_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
+      const script = document.createElement("script");
       const query = [];
 
+      query.push("action=" + encodeURIComponent(action));
+      query.push("initData=" + encodeURIComponent(initData));
+      query.push("callback=" + encodeURIComponent(callbackName));
+      query.push("ts=" + Date.now());
 
-      query.push(
-        "action=" +
-        encodeURIComponent(action)
-      );
+      Object.keys(params).forEach(function(key) {
+        const value = params[key] === undefined || params[key] === null ? "" : params[key];
+        query.push(encodeURIComponent(key) + "=" + encodeURIComponent(value));
+      });
 
-
-      query.push(
-        "initData=" +
-        encodeURIComponent(initData)
-      );
-
-
-      query.push(
-        "callback=" +
-        encodeURIComponent(callbackName)
-      );
-
-
-      query.push(
-        "ts=" +
-        Date.now()
-      );
-
-
-      Object.keys(params).forEach(
-        function(key) {
-
-          const value =
-            params[key] === undefined ||
-            params[key] === null
-              ? ""
-              : params[key];
-
-
-          query.push(
-            encodeURIComponent(key) +
-            "=" +
-            encodeURIComponent(value)
-          );
-
-        }
-      );
-
-
-      const url =
-        API_URL +
-        "?" +
-        query.join("&");
-
-
+      const url = API_URL + "?" + query.join("&");
       let finished = false;
 
-
-      const timer =
-        setTimeout(
-          function() {
-
-            if (finished) return;
-
-            finished = true;
-
-            cleanup();
-
-            reject(
-              new Error(
-                "서버 응답 시간이 초과되었습니다."
-              )
-            );
-
-          },
-          20000
-        );
-
+      const timer = setTimeout(function() {
+        if (finished) return;
+        finished = true;
+        cleanup();
+        reject(new Error("서버 응답 시간이 초과되었습니다."));
+      }, 20000);
 
       function cleanup() {
-
         clearTimeout(timer);
-
-
-        if (script.parentNode) {
-
-          script.parentNode.removeChild(
-            script
-          );
-
-        }
-
-
-        try {
-
-          delete window[callbackName];
-
-        } catch (e) {
-
-          window[callbackName] =
-            undefined;
-
-        }
-
+        if (script.parentNode) script.parentNode.removeChild(script);
+        try { delete window[callbackName]; } catch (e) { window[callbackName] = undefined; }
       }
 
+      window[callbackName] = function(result) {
+        if (finished) return;
+        finished = true;
+        cleanup();
+        if (!result) { reject(new Error("서버 응답이 없습니다.")); return; }
+        if (result.ok === false) { reject(new Error(result.error || "서버 오류가 발생했습니다.")); return; }
+        resolve(result);
+      };
 
-      window[callbackName] =
-        function(result) {
-
-          if (finished) return;
-
-          finished = true;
-
-          cleanup();
-
-
-          if (!result) {
-
-            reject(
-              new Error(
-                "서버 응답이 없습니다."
-              )
-            );
-
-            return;
-          }
-
-
-          if (result.ok === false) {
-
-            reject(
-              new Error(
-                result.error ||
-                "서버 오류가 발생했습니다."
-              )
-            );
-
-            return;
-          }
-
-
-          resolve(result);
-
-        };
-
-
-      script.onerror =
-        function() {
-
-          if (finished) return;
-
-          finished = true;
-
-          cleanup();
-
-
-          reject(
-            new Error(
-              "API 서버에 연결할 수 없습니다."
-            )
-          );
-
-        };
-
+      script.onerror = function() {
+        if (finished) return;
+        finished = true;
+        cleanup();
+        reject(new Error("API 서버에 연결할 수 없습니다."));
+      };
 
       script.src = url;
-
-
-      document
-        .head
-        .appendChild(script);
-
+      document.head.appendChild(script);
     });
-
   }
 
-
-
-  /*
-   * API data 공통 처리
-   */
-
   function getApiData(result, fallback) {
-
-    if (
-      result &&
-      result.data !== undefined
-    ) {
-      return result.data;
-    }
-
-
+    if (result && result.data !== undefined) return result.data;
     return fallback;
   }
 
-
-
-  /*
-   * 로딩
-   */
-
   function showLoading(show) {
-
-    const el =
-      document.getElementById(
-        "loading"
-      );
-
-
-    if (show) {
-      el.classList.add("show");
-    } else {
-      el.classList.remove("show");
-    }
-
+    const el = document.getElementById("loading");
+    if (show) el.classList.add("show");
+    else el.classList.remove("show");
   }
-
-
-
-  /*
-   * 페이지 전환
-   */
 
   function showPage(page) {
-
     currentPage = page;
+    document.querySelectorAll(".page").forEach(el => el.classList.remove("active"));
+    const target = document.getElementById("page-" + page);
+    if (target) target.classList.add("active");
 
+    document.querySelectorAll(".nav-btn").forEach(el => el.classList.remove("active"));
+    const nav = document.getElementById("nav-" + page);
+    if (nav) nav.classList.add("active");
 
-    document
-      .querySelectorAll(".page")
-      .forEach(
-        function(el) {
-
-          el.classList.remove(
-            "active"
-          );
-
-        }
-      );
-
-
-    const target =
-      document.getElementById(
-        "page-" + page
-      );
-
-
-    if (target) {
-      target.classList.add("active");
-    }
-
-
-    document
-      .querySelectorAll(".nav-btn")
-      .forEach(
-        function(el) {
-
-          el.classList.remove(
-            "active"
-          );
-
-        }
-      );
-
-
-    const nav =
-      document.getElementById(
-        "nav-" + page
-      );
-
-
-    if (nav) {
-      nav.classList.add("active");
-    }
-
-
-    if (page === "home") {
-      loadHome();
-    }
-
-
-    if (page === "schedule") {
-      loadSchedules();
-    }
-
-
-    if (page === "settlement") {
-      loadSettlements();
-    }
-
-
-    if (page === "memo") {
-      loadMemos();
-    }
-
-
-    if (page === "news") {
-      loadNews();
-    }
-
+    if (page === "home") loadHome();
+    if (page === "schedule") loadSchedules();
+    if (page === "settlement") loadSettlements();
+    if (page === "memo") loadMemos();
+    if (page === "news") loadNews();
   }
-
-
 
   function refreshCurrent() {
-
-    if (currentPage === "home") {
-      loadHome();
-    }
-
-    if (currentPage === "schedule") {
-      loadSchedules();
-    }
-
-    if (currentPage === "settlement") {
-      loadSettlements();
-    }
-
-    if (currentPage === "memo") {
-      loadMemos();
-    }
-
-    if (currentPage === "news") {
-      loadNews();
-    }
-
+    showPage(currentPage);
   }
-
-
-
-  /*
-   * 날짜
-   */
 
   function today() {
-
-    const d =
-      new Date();
-
-
-    const y =
-      d.getFullYear();
-
-
-    const m =
-      String(
-        d.getMonth() + 1
-      ).padStart(2, "0");
-
-
-    const day =
-      String(
-        d.getDate()
-      ).padStart(2, "0");
-
-
-    return (
-      y +
-      "-" +
-      m +
-      "-" +
-      day
-    );
-
+    const d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
   }
-
-
-
-  /*
-   * HTML escape
-   */
 
   function escapeHtml(value) {
-
-    if (
-      value === null ||
-      value === undefined
-    ) {
-      return "";
-    }
-
-
+    if (value === null || value === undefined) return "";
     return String(value)
-      .replace(
-        /&/g,
-        "&amp;"
-      )
-      .replace(
-        /</g,
-        "&lt;"
-      )
-      .replace(
-        />/g,
-        "&gt;"
-      )
-      .replace(
-        /"/g,
-        "&quot;"
-      )
-      .replace(
-        /'/g,
-        "&#039;"
-      );
-
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
   }
-
-
-
-  /*
-   * 행 ID
-   *
-   * 최종 Code.gs가 id를 반환하는 경우와
-   * 기존 코드가 row를 반환하는 경우 모두 대응
-   */
 
   function getItemId(item) {
-
-    if (!item) {
-      return "";
-    }
-
-
-    if (
-      item.id !== undefined &&
-      item.id !== null
-    ) {
-      return item.id;
-    }
-
-
-    if (
-      item.row !== undefined &&
-      item.row !== null
-    ) {
-      return item.row;
-    }
-
-
+    if (!item) return "";
+    if (item.id !== undefined && item.id !== null) return item.id;
+    if (item.row !== undefined && item.row !== null) return item.row;
     return "";
-
   }
 
-
-
-  /*
-   * 홈
-   */
-
+  /* 홈 */
   async function loadHome() {
-
     try {
-
-      const result =
-        await api(
-          "getSchedules"
-        );
-
-
-      const data =
-        getApiData(
-          result,
-          []
-        );
-
-
-      if (
-        Array.isArray(data)
-      ) {
-
-        schedules = data;
-
-      } else if (
-        data &&
-        Array.isArray(data.schedules)
-      ) {
-
-        schedules =
-          data.schedules;
-
-      } else {
-
-        schedules =
-          result.schedules ||
-          [];
-
-      }
-
-
+      const result = await api("getSchedules");
+      const data = getApiData(result, []);
+      schedules = Array.isArray(data) ? data : (data.schedules || result.schedules || []);
       renderHomeSchedules();
-
     } catch (error) {
-
-      document
-        .getElementById(
-          "homeSchedules"
-        )
-        .innerHTML =
-        '<div class="empty">' +
-        escapeHtml(
-          error.message
-        ) +
-        '</div>';
-
+      document.getElementById("homeSchedules").innerHTML = '<div class="empty">' + escapeHtml(error.message) + '</div>';
     }
-
   }
-
-
 
   function renderHomeSchedules() {
-
-    const box =
-      document.getElementById(
-        "homeSchedules"
-      );
-
-
+    const box = document.getElementById("homeSchedules");
     if (!schedules.length) {
-
-      box.innerHTML =
-        '<div class="empty">' +
-        '등록된 일정이 없습니다.' +
-        '</div>';
-
+      box.innerHTML = '<div class="empty">등록된 일정이 없습니다.</div>';
       return;
     }
-
-
-    const todayText =
-      today();
-
-
-    const list =
-      schedules.filter(
-        function(item) {
-
-          return (
-            String(
-              item.date || ""
-            ) === todayText
-          );
-
-        }
-      );
-
-
+    const todayText = today();
+    const list = schedules.filter(item => String(item.date || "") === todayText);
     if (!list.length) {
-
-      box.innerHTML =
-        '<div class="empty">' +
-        '오늘 일정이 없습니다.' +
-        '</div>';
-
+      box.innerHTML = '<div class="empty">오늘 일정이 없습니다.</div>';
       return;
     }
-
-
-    box.innerHTML =
-      '<div class="list">' +
-
-      list.map(
-        function(item) {
-
-          const title =
-            item.title ||
-            item.schedule ||
-            item.content ||
-            "";
-
-
-          return `
-            <div class="item">
-
-              <div class="item-main">
-                ${escapeHtml(item.time || "")}
-                ${item.time ? " · " : ""}
-                ${escapeHtml(title)}
-              </div>
-
-              <div class="item-meta">
-                ${escapeHtml(item.date || "")}
-              </div>
-
-            </div>
-          `;
-
-        }
-      ).join("") +
-
-      "</div>";
-
+    box.innerHTML = '<div class="list">' + list.map(item => `
+      <div class="item">
+        <div class="item-main">${escapeHtml(item.time || "")}${item.time ? " · " : ""}${escapeHtml(item.title || item.schedule || "")}</div>
+        <div class="item-meta">${escapeHtml(item.date || "")}</div>
+      </div>
+    `).join("") + '</div>';
   }
 
-
-
-  /*
-   * 일정
-   */
-
+  /* 일정 */
   async function loadSchedules() {
-
-    const box =
-      document.getElementById(
-        "scheduleList"
-      );
-
-
-    box.innerHTML =
-      '<div class="empty">' +
-      '불러오는 중...' +
-      '</div>';
-
-
+    const box = document.getElementById("scheduleList");
+    box.innerHTML = '<div class="empty">불러오는 중...</div>';
     try {
-
-      const result =
-        await api(
-          "getSchedules"
-        );
-
-
-      const data =
-        getApiData(
-          result,
-          []
-        );
-
-
-      if (
-        Array.isArray(data)
-      ) {
-
-        schedules = data;
-
-      } else if (
-        data &&
-        Array.isArray(data.schedules)
-      ) {
-
-        schedules =
-          data.schedules;
-
-      } else {
-
-        schedules =
-          result.schedules ||
-          [];
-
-      }
-
-
+      const result = await api("getSchedules");
+      const data = getApiData(result, []);
+      schedules = Array.isArray(data) ? data : (data.schedules || result.schedules || []);
       renderSchedules();
-
     } catch (error) {
-
-      box.innerHTML =
-        '<div class="empty">' +
-        escapeHtml(
-          error.message
-        ) +
-        '</div>';
-
+      box.innerHTML = '<div class="empty">' + escapeHtml(error.message) + '</div>';
     }
-
   }
-
-
 
   function renderSchedules() {
-
-    const box =
-      document.getElementById(
-        "scheduleList"
-      );
-
-
+    const box = document.getElementById("scheduleList");
     if (!schedules.length) {
-
-      box.innerHTML =
-        '<div class="empty">' +
-        '등록된 일정이 없습니다.' +
-        '</div>';
-
+      box.innerHTML = '<div class="empty">등록된 일정이 없습니다.</div>';
       return;
     }
-
-
-    box.innerHTML =
-      schedules.map(
-        function(item) {
-
-          const id =
-            getItemId(item);
-
-
-          const title =
-            item.title ||
-            item.schedule ||
-            "";
-
-
-          return `
-            <div class="item">
-
-              <div class="item-main">
-                📅 ${escapeHtml(item.date || "")}
-
-                ${
-                  item.time
-                    ? " · " +
-                      escapeHtml(item.time)
-                    : ""
-                }
-
-                <br>
-
-                ${escapeHtml(title)}
-              </div>
-
-
-              <div class="item-meta">
-
-                등록자:
-                ${escapeHtml(
-                  item.registrant ||
-                  item.registeredBy ||
-                  ""
-                )}
-
-              </div>
-
-
-              <div class="item-actions">
-
-                <button
-                  class="small-btn"
-                  onclick='openEdit("schedule", ${JSON.stringify(id)})'>
-
-                  수정
-
-                </button>
-
-
-                <button
-                  class="small-btn delete"
-                  onclick='deleteSchedule(${JSON.stringify(id)})'>
-
-                  삭제
-
-                </button>
-
-              </div>
-
-            </div>
-          `;
-
-        }
-      ).join("");
-
+    box.innerHTML = schedules.map(item => {
+      const id = getItemId(item);
+      return `
+        <div class="item">
+          <div class="item-main">📅 ${escapeHtml(item.date || "")}${item.time ? " · " + escapeHtml(item.time) : ""}<br>${escapeHtml(item.title || item.schedule || "")}</div>
+          <div class="item-meta">등록자: ${escapeHtml(item.registrant || item.registeredBy || "")}</div>
+          <div class="item-actions">
+            <button class="small-btn" onclick='openEdit("schedule", ${JSON.stringify(id)})'>수정</button>
+            <button class="small-btn delete" onclick='deleteSchedule(${JSON.stringify(id)})'>삭제</button>
+          </div>
+        </div>
+      `;
+    }).join("");
   }
-
-
 
   async function addSchedule() {
-
-    const date =
-      document.getElementById(
-        "scheduleDate"
-      ).value;
-
-
-    const time =
-      document.getElementById(
-        "scheduleTime"
-      ).value;
-
-
-    const title =
-      document.getElementById(
-        "scheduleTitle"
-      ).value.trim();
-
-
-    if (!date || !title) {
-
-      alert(
-        "날짜와 일정을 입력해주세요."
-      );
-
-      return;
-    }
-
+    const date = document.getElementById("scheduleDate").value;
+    const time = document.getElementById("scheduleTime").value;
+    const title = document.getElementById("scheduleTitle").value.trim();
+    if (!date || !title) { alert("날짜와 일정을 입력해주세요."); return; }
 
     showLoading(true);
-
-
     try {
-
-      await api(
-        "addSchedule",
-        {
-          date: date,
-          time: time,
-          title: title
-        }
-      );
-
-
-      document.getElementById(
-        "scheduleTitle"
-      ).value = "";
-
-
-      alert(
-        "일정이 등록되었습니다."
-      );
-
-
+      await api("addSchedule", { date, time, title });
+      document.getElementById("scheduleTitle").value = "";
+      alert("일정이 등록되었습니다.");
       await loadSchedules();
-
     } catch (error) {
-
-      alert(
-        error.message
-      );
-
+      alert(error.message);
     } finally {
-
       showLoading(false);
-
     }
-
   }
-
-
 
   async function deleteSchedule(id) {
-
-    if (
-      !confirm(
-        "이 일정을 삭제할까요?"
-      )
-    ) {
-      return;
-    }
-
-
+    if (!confirm("이 일정을 삭제할까요?")) return;
     showLoading(true);
-
-
     try {
-
-      await api(
-        "deleteSchedule",
-        {
-          id: id,
-          row: id
-        }
-      );
-
-
+      await api("deleteSchedule", { id, row: id });
       await loadSchedules();
-
     } catch (error) {
-
-      alert(
-        error.message
-      );
-
+      alert(error.message);
     } finally {
-
       showLoading(false);
-
     }
-
   }
 
-
-
-  /*
-   * 정산
-   */
-
+  /* 정산 & 송금 계산 */
   async function loadSettlements() {
-
-    const box =
-      document.getElementById(
-        "settlementList"
-      );
-
-
-    box.innerHTML =
-      '<div class="empty">' +
-      '불러오는 중...' +
-      '</div>';
-
-
+    const box = document.getElementById("settlementList");
+    box.innerHTML = '<div class="empty">불러오는 중...</div>';
     try {
-
-      const result =
-        await api(
-          "getSettlements"
-        );
-
-
-      const data =
-        getApiData(
-          result,
-          []
-        );
-
-
-      if (
-        Array.isArray(data)
-      ) {
-
-        settlements = data;
-
-      } else if (
-        data &&
-        Array.isArray(
-          data.settlements
-        )
-      ) {
-
-        settlements =
-          data.settlements;
-
-      } else {
-
-        settlements =
-          result.settlements ||
-          [];
-
-      }
-
-
+      const result = await api("getSettlements");
+      const data = getApiData(result, []);
+      settlements = Array.isArray(data) ? data : (data.settlements || result.settlements || []);
       renderSettlements();
-
+      document.getElementById("calcResultBox").style.display = "none";
     } catch (error) {
-
-      box.innerHTML =
-        '<div class="empty">' +
-        escapeHtml(
-          error.message
-        ) +
-        '</div>';
-
+      box.innerHTML = '<div class="empty">' + escapeHtml(error.message) + '</div>';
     }
-
   }
-
-
 
   function renderSettlements() {
-
-    const box =
-      document.getElementById(
-        "settlementList"
-      );
-
-
+    const box = document.getElementById("settlementList");
     if (!settlements.length) {
-
-      box.innerHTML =
-        '<div class="empty">' +
-        '등록된 정산이 없습니다.' +
-        '</div>';
-
+      box.innerHTML = '<div class="empty">등록된 지출 내역이 없습니다.</div>';
       return;
     }
 
+    box.innerHTML = settlements.map(item => {
+      const id = getItemId(item);
+      const amount = Number(item.amount || 0);
+      const amountText = Number.isFinite(amount) ? amount.toLocaleString("ko-KR") + "원" : escapeHtml(item.amount || "");
+      const payer = escapeHtml(item.registrant || item.registeredBy || item.user || "미지정");
 
-    box.innerHTML =
-      settlements.map(
-        function(item) {
-
-          const id =
-            getItemId(item);
-
-
-          const amount =
-            Number(
-              item.amount || 0
-            );
-
-
-          const amountText =
-            Number.isFinite(amount)
-              ? amount.toLocaleString(
-                  "ko-KR"
-                ) + "원"
-              : escapeHtml(
-                  item.amount || ""
-                );
-
-
-          return `
-            <div class="item">
-
-              <div class="item-main">
-                💰 ${escapeHtml(
-                  item.content || ""
-                )}
-              </div>
-
-
+      return `
+        <div class="item">
+          <div class="settlement-card-header">
+            <input type="checkbox" class="settlement-checkbox" value="${escapeHtml(id)}" checked>
+            <div style="flex:1;">
+              <div class="item-main">💰 ${escapeHtml(item.content || "")}</div>
               <div class="item-meta">
-
-                ${escapeHtml(
-                  item.date || ""
-                )}
-
-                ·
-
-                ${amountText}
-
-
-                ${
-                  item.note
-                    ? "<br>비고: " +
-                      escapeHtml(
-                        item.note
-                      )
-                    : ""
-                }
-
-
-                <br>
-
-                등록자:
-
-                ${escapeHtml(
-                  item.registrant ||
-                  item.registeredBy ||
-                  ""
-                )}
-
+                ${escapeHtml(item.date || "")} · <b>${amountText}</b>
+                ${item.note ? "<br>비고: " + escapeHtml(item.note) : ""}
+                <br><b>결제자(등록자):</b> ${payer}
               </div>
-
-
-              <div class="item-actions">
-
-                <button
-                  class="small-btn"
-                  onclick='openEdit("settlement", ${JSON.stringify(id)})'>
-
-                  수정
-
-                </button>
-
-
-                <button
-                  class="small-btn delete"
-                  onclick='deleteSettlement(${JSON.stringify(id)})'>
-
-                  삭제
-
-                </button>
-
-              </div>
-
             </div>
-          `;
-
-        }
-      ).join("");
-
+          </div>
+          <div class="item-actions" style="margin-left:30px;">
+            <button class="small-btn" onclick='openEdit("settlement", ${JSON.stringify(id)})'>수정</button>
+            <button class="small-btn delete" onclick='deleteSettlement(${JSON.stringify(id)})'>삭제</button>
+          </div>
+        </div>
+      `;
+    }).join("");
   }
 
+  function toggleSelectAllSettlements() {
+    const checkboxes = document.querySelectorAll(".settlement-checkbox");
+    if (!checkboxes.length) return;
+    const hasUnchecked = Array.from(checkboxes).some(cb => !cb.checked);
+    checkboxes.forEach(cb => cb.checked = hasUnchecked);
+  }
 
+  async function runSettlementCalc() {
+    const checkboxes = document.querySelectorAll(".settlement-checkbox:checked");
+    const selectedIds = Array.from(checkboxes).map(cb => cb.value).join(",");
+    const participants = document.getElementById("calcParticipants").value.trim();
+
+    if (!selectedIds) {
+      alert("정산에 포함할 지출 항목을 1개 이상 체크해주세요.");
+      return;
+    }
+
+    showLoading(true);
+    try {
+      const res = await api("calculateSettlement", {
+        selectedIds: selectedIds,
+        participants: participants
+      });
+
+      const box = document.getElementById("calcResultBox");
+      box.style.display = "block";
+
+      let html = `<div style="font-size:13px; line-height:1.6; margin-bottom:10px;">
+        선택 지출 총액: <b style="color:#38bdf8;">${Number(res.totalAmount).toLocaleString()}원</b><br>
+        참여 인원: <b>${res.memberCount}명</b> (1인당 <b style="color:#fde047;">${Number(res.perPerson).toLocaleString()}원</b>)
+      </div>`;
+
+      if (res.transfers && res.transfers.length > 0) {
+        html += '<div style="font-weight:700; color:#38bdf8; margin-bottom:6px; font-size:13px;">👉 송금 안내:</div>';
+        html += '<ul style="margin:0; padding-left:18px; font-size:13px;">';
+        res.transfers.forEach(t => {
+          html += `<li style="margin-bottom:4px;">
+            <b>${escapeHtml(t.from)}</b> ➡️ <b>${escapeHtml(t.to)}</b>:
+            <span style="color:#fde047; font-weight:800;">${Number(t.amount).toLocaleString()}원</span>
+          </li>`;
+        });
+        html += '</ul>';
+      } else {
+        html += '<div style="color:#a7f3d0; font-size:13px;">✨ 이미 균등하게 정산되었거나 송금할 내역이 없습니다.</div>';
+      }
+
+      if (res.participants && res.participants.length > 0) {
+        html += '<div style="margin-top:10px; padding-top:8px; border-top:1px solid #334155; font-size:11px; opacity:0.8;">';
+        html += '개별 결제액: ' + res.participants.map(p => `${escapeHtml(p.name)}(${Number(p.paid).toLocaleString()}원)`).join(', ');
+        html += '</div>';
+      }
+
+      box.innerHTML = html;
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      showLoading(false);
+    }
+  }
 
   async function addSettlement() {
+    const date = document.getElementById("settlementDate").value;
+    const content = document.getElementById("settlementContent").value.trim();
+    const amount = document.getElementById("settlementAmount").value;
+    const note = document.getElementById("settlementNote").value.trim();
 
-    const date =
-      document.getElementById(
-        "settlementDate"
-      ).value;
-
-
-    const content =
-      document.getElementById(
-        "settlementContent"
-      ).value.trim();
-
-
-    const amount =
-      document.getElementById(
-        "settlementAmount"
-      ).value;
-
-
-    const note =
-      document.getElementById(
-        "settlementNote"
-      ).value.trim();
-
-
-    if (
-      !date ||
-      !content ||
-      !amount
-    ) {
-
-      alert(
-        "날짜, 내용, 금액을 입력해주세요."
-      );
-
+    if (!date || !content || !amount) {
+      alert("날짜, 내용, 금액을 입력해주세요.");
       return;
     }
 
-
     showLoading(true);
-
-
     try {
-
-      await api(
-        "addSettlement",
-        {
-          date: date,
-          content: content,
-          amount: amount,
-          note: note
-        }
-      );
-
-
-      document.getElementById(
-        "settlementContent"
-      ).value = "";
-
-
-      document.getElementById(
-        "settlementAmount"
-      ).value = "";
-
-
-      document.getElementById(
-        "settlementNote"
-      ).value = "";
-
-
-      alert(
-        "정산이 등록되었습니다."
-      );
-
-
+      await api("addSettlement", { date, content, amount, note });
+      document.getElementById("settlementContent").value = "";
+      document.getElementById("settlementAmount").value = "";
+      document.getElementById("settlementNote").value = "";
+      alert("지출 내역이 등록되었습니다.");
       await loadSettlements();
-
     } catch (error) {
-
-      alert(
-        error.message
-      );
-
+      alert(error.message);
     } finally {
-
       showLoading(false);
-
     }
-
   }
-
-
 
   async function deleteSettlement(id) {
-
-    if (
-      !confirm(
-        "이 정산을 삭제할까요?"
-      )
-    ) {
-      return;
-    }
-
-
+    if (!confirm("이 지출 내역을 삭제할까요?")) return;
     showLoading(true);
-
-
     try {
-
-      await api(
-        "deleteSettlement",
-        {
-          id: id,
-          row: id
-        }
-      );
-
-
+      await api("deleteSettlement", { id, row: id });
       await loadSettlements();
-
     } catch (error) {
-
-      alert(
-        error.message
-      );
-
+      alert(error.message);
     } finally {
-
       showLoading(false);
-
     }
-
   }
 
-
-
-  /*
-   * 메모
-   */
-
+  /* 메모 */
   async function loadMemos() {
-
-    const box =
-      document.getElementById(
-        "memoList"
-      );
-
-
-    box.innerHTML =
-      '<div class="empty">' +
-      '불러오는 중...' +
-      '</div>';
-
-
+    const box = document.getElementById("memoList");
+    box.innerHTML = '<div class="empty">불러오는 중...</div>';
     try {
-
-      const result =
-        await api(
-          "getMemos"
-        );
-
-
-      const data =
-        getApiData(
-          result,
-          []
-        );
-
-
-      if (
-        Array.isArray(data)
-      ) {
-
-        memos = data;
-
-      } else if (
-        data &&
-        Array.isArray(
-          data.memos
-        )
-      ) {
-
-        memos =
-          data.memos;
-
-      } else {
-
-        memos =
-          result.memos ||
-          [];
-
-      }
-
-
+      const result = await api("getMemos");
+      const data = getApiData(result, []);
+      memos = Array.isArray(data) ? data : (data.memos || result.memos || []);
       renderMemos();
-
     } catch (error) {
-
-      box.innerHTML =
-        '<div class="empty">' +
-        escapeHtml(
-          error.message
-        ) +
-        '</div>';
-
+      box.innerHTML = '<div class="empty">' + escapeHtml(error.message) + '</div>';
     }
-
   }
-
-
 
   function renderMemos() {
-
-    const box =
-      document.getElementById(
-        "memoList"
-      );
-
-
+    const box = document.getElementById("memoList");
     if (!memos.length) {
-
-      box.innerHTML =
-        '<div class="empty">' +
-        '등록된 메모가 없습니다.' +
-        '</div>';
-
+      box.innerHTML = '<div class="empty">등록된 메모가 없습니다.</div>';
       return;
     }
-
-
-    box.innerHTML =
-      memos.map(
-        function(item) {
-
-          const id =
-            getItemId(item);
-
-
-          return `
-            <div class="item">
-
-              <div class="item-main">
-                📝 ${escapeHtml(
-                  item.memo || ""
-                )}
-              </div>
-
-
-              <div class="item-meta">
-
-                ${escapeHtml(
-                  item.date || ""
-                )}
-
-
-                ${
-                  item.note
-                    ? "<br>비고: " +
-                      escapeHtml(
-                        item.note
-                      )
-                    : ""
-                }
-
-
-                <br>
-
-                등록자:
-
-                ${escapeHtml(
-                  item.registrant ||
-                  item.registeredBy ||
-                  ""
-                )}
-
-              </div>
-
-
-              <div class="item-actions">
-
-                <button
-                  class="small-btn"
-                  onclick='openEdit("memo", ${JSON.stringify(id)})'>
-
-                  수정
-
-                </button>
-
-
-                <button
-                  class="small-btn delete"
-                  onclick='deleteMemo(${JSON.stringify(id)})'>
-
-                  삭제
-
-                </button>
-
-              </div>
-
-            </div>
-          `;
-
-        }
-      ).join("");
-
+    box.innerHTML = memos.map(item => {
+      const id = getItemId(item);
+      return `
+        <div class="item">
+          <div class="item-main">📝 ${escapeHtml(item.memo || "")}</div>
+          <div class="item-meta">${escapeHtml(item.date || "")}${item.note ? "<br>비고: " + escapeHtml(item.note) : ""}<br>등록자: ${escapeHtml(item.registrant || item.registeredBy || "")}</div>
+          <div class="item-actions">
+            <button class="small-btn" onclick='openEdit("memo", ${JSON.stringify(id)})'>수정</button>
+            <button class="small-btn delete" onclick='deleteMemo(${JSON.stringify(id)})'>삭제</button>
+          </div>
+        </div>
+      `;
+    }).join("");
   }
-
-
 
   async function addMemo() {
-
-    const date =
-      document.getElementById(
-        "memoDate"
-      ).value;
-
-
-    const memo =
-      document.getElementById(
-        "memoText"
-      ).value.trim();
-
-
-    const note =
-      document.getElementById(
-        "memoNote"
-      ).value.trim();
-
-
-    if (!date || !memo) {
-
-      alert(
-        "날짜와 메모를 입력해주세요."
-      );
-
-      return;
-    }
-
+    const date = document.getElementById("memoDate").value;
+    const memo = document.getElementById("memoText").value.trim();
+    const note = document.getElementById("memoNote").value.trim();
+    if (!date || !memo) { alert("날짜와 메모를 입력해주세요."); return; }
 
     showLoading(true);
-
-
     try {
-
-      await api(
-        "addMemo",
-        {
-          date: date,
-          memo: memo,
-          note: note
-        }
-      );
-
-
-      document.getElementById(
-        "memoText"
-      ).value = "";
-
-
-      document.getElementById(
-        "memoNote"
-      ).value = "";
-
-
-      alert(
-        "메모가 등록되었습니다."
-      );
-
-
+      await api("addMemo", { date, memo, note });
+      document.getElementById("memoText").value = "";
+      document.getElementById("memoNote").value = "";
+      alert("메모가 등록되었습니다.");
       await loadMemos();
-
     } catch (error) {
-
-      alert(
-        error.message
-      );
-
+      alert(error.message);
     } finally {
-
       showLoading(false);
-
     }
-
   }
-
-
 
   async function deleteMemo(id) {
-
-    if (
-      !confirm(
-        "이 메모를 삭제할까요?"
-      )
-    ) {
-      return;
-    }
-
-
+    if (!confirm("이 메모를 삭제할까요?")) return;
     showLoading(true);
-
-
     try {
-
-      await api(
-        "deleteMemo",
-        {
-          id: id,
-          row: id
-        }
-      );
-
-
+      await api("deleteMemo", { id, row: id });
       await loadMemos();
-
     } catch (error) {
-
-      alert(
-        error.message
-      );
-
+      alert(error.message);
     } finally {
-
       showLoading(false);
-
     }
-
   }
 
-
-
-  /*
-   * 수정
-   */
-
-  function openEdit(
-    type,
-    id
-  ) {
-
+  /* 수정 모달 */
+  function openEdit(type, id) {
     let data = null;
-
-
-    const numericId =
-      Number(id);
-
+    const numericId = Number(id);
 
     if (type === "schedule") {
-
-      data =
-        schedules.find(
-          function(item) {
-
-            return (
-              String(
-                getItemId(item)
-              ) === String(id)
-            );
-
-          }
-        );
-
-
-      if (!data) {
-
-        data =
-          schedules.find(
-            function(item) {
-
-              return (
-                Number(
-                  item.row
-                ) === numericId
-              );
-
-            }
-          );
-
-      }
-
+      data = schedules.find(item => String(getItemId(item)) === String(id) || Number(item.row) === numericId);
     }
-
-
     if (type === "settlement") {
-
-      data =
-        settlements.find(
-          function(item) {
-
-            return (
-              String(
-                getItemId(item)
-              ) === String(id)
-            );
-
-          }
-        );
-
-
-      if (!data) {
-
-        data =
-          settlements.find(
-            function(item) {
-
-              return (
-                Number(
-                  item.row
-                ) === numericId
-              );
-
-            }
-          );
-
-      }
-
+      data = settlements.find(item => String(getItemId(item)) === String(id) || Number(item.row) === numericId);
     }
-
-
     if (type === "memo") {
-
-      data =
-        memos.find(
-          function(item) {
-
-            return (
-              String(
-                getItemId(item)
-              ) === String(id)
-            );
-
-          }
-        );
-
-
-      if (!data) {
-
-        data =
-          memos.find(
-            function(item) {
-
-              return (
-                Number(
-                  item.row
-                ) === numericId
-              );
-
-            }
-          );
-
-      }
-
+      data = memos.find(item => String(getItemId(item)) === String(id) || Number(item.row) === numericId);
     }
 
+    if (!data) { alert("수정할 데이터를 찾을 수 없습니다."); return; }
 
-    if (!data) {
-
-      alert(
-        "수정할 데이터를 찾을 수 없습니다."
-      );
-
-      return;
-    }
-
-
-    editType =
-      type;
-
-
-    editRow =
-      getItemId(data);
-
-
-    editData =
-      data;
-
-
-    const fields =
-      document.getElementById(
-        "modalFields"
-      );
-
-
+    editType = type;
+    editRow = getItemId(data);
+    editData = data;
+    const fields = document.getElementById("modalFields");
 
     if (type === "schedule") {
-
-      document.getElementById(
-        "modalTitle"
-      ).textContent =
-        "일정 수정";
-
-
+      document.getElementById("modalTitle").textContent = "일정 수정";
       fields.innerHTML = `
-
-        <div class="field">
-
-          <label>날짜</label>
-
-          <input
-            id="editDate"
-            type="date"
-            value="${escapeHtml(
-              data.date || ""
-            )}">
-
-        </div>
-
-
-        <div class="field">
-
-          <label>시간</label>
-
-          <input
-            id="editTime"
-            type="time"
-            value="${escapeHtml(
-              data.time || ""
-            )}">
-
-        </div>
-
-
-        <div class="field">
-
-          <label>일정</label>
-
-          <input
-            id="editTitle"
-            value="${escapeHtml(
-              data.title ||
-              data.schedule ||
-              ""
-            )}">
-
-        </div>
-
+        <div class="field"><label>날짜</label><input id="editDate" type="date" value="${escapeHtml(data.date || "")}"></div>
+        <div class="field"><label>시간</label><input id="editTime" type="time" value="${escapeHtml(data.time || "")}"></div>
+        <div class="field"><label>일정</label><input id="editTitle" value="${escapeHtml(data.title || data.schedule || "")}"></div>
       `;
-
     }
-
-
-
     if (type === "settlement") {
-
-      document.getElementById(
-        "modalTitle"
-      ).textContent =
-        "정산 수정";
-
-
+      document.getElementById("modalTitle").textContent = "지출 수정";
       fields.innerHTML = `
-
-        <div class="field">
-
-          <label>날짜</label>
-
-          <input
-            id="editDate"
-            type="date"
-            value="${escapeHtml(
-              data.date || ""
-            )}">
-
-        </div>
-
-
-        <div class="field">
-
-          <label>내용</label>
-
-          <input
-            id="editContent"
-            value="${escapeHtml(
-              data.content || ""
-            )}">
-
-        </div>
-
-
-        <div class="field">
-
-          <label>금액</label>
-
-          <input
-            id="editAmount"
-            type="number"
-            value="${escapeHtml(
-              data.amount || ""
-            )}">
-
-        </div>
-
-
-        <div class="field">
-
-          <label>비고</label>
-
-          <input
-            id="editNote"
-            value="${escapeHtml(
-              data.note || ""
-            )}">
-
-        </div>
-
+        <div class="field"><label>날짜</label><input id="editDate" type="date" value="${escapeHtml(data.date || "")}"></div>
+        <div class="field"><label>내용</label><input id="editContent" value="${escapeHtml(data.content || "")}"></div>
+        <div class="field"><label>금액</label><input id="editAmount" type="number" value="${escapeHtml(data.amount || "")}"></div>
+        <div class="field"><label>비고</label><input id="editNote" value="${escapeHtml(data.note || "")}"></div>
       `;
-
     }
-
-
-
     if (type === "memo") {
-
-      document.getElementById(
-        "modalTitle"
-      ).textContent =
-        "메모 수정";
-
-
+      document.getElementById("modalTitle").textContent = "메모 수정";
       fields.innerHTML = `
-
-        <div class="field">
-
-          <label>날짜</label>
-
-          <input
-            id="editDate"
-            type="date"
-            value="${escapeHtml(
-              data.date || ""
-            )}">
-
-        </div>
-
-
-        <div class="field">
-
-          <label>메모</label>
-
-          <textarea
-            id="editMemo">${escapeHtml(
-              data.memo || ""
-            )}</textarea>
-
-        </div>
-
-
-        <div class="field">
-
-          <label>비고</label>
-
-          <input
-            id="editNote"
-            value="${escapeHtml(
-              data.note || ""
-            )}">
-
-        </div>
-
+        <div class="field"><label>날짜</label><input id="editDate" type="date" value="${escapeHtml(data.date || "")}"></div>
+        <div class="field"><label>메모</label><textarea id="editMemo">${escapeHtml(data.memo || "")}</textarea></div>
+        <div class="field"><label>비고</label><input id="editNote" value="${escapeHtml(data.note || "")}"></div>
       `;
-
     }
 
-
-    document
-      .getElementById(
-        "editModal"
-      )
-      .classList.add("show");
-
+    document.getElementById("editModal").classList.add("show");
   }
-
-
 
   function closeModal() {
-
-    document
-      .getElementById(
-        "editModal"
-      )
-      .classList.remove(
-        "show"
-      );
-
-
-    editType =
-      "";
-
-
-    editRow =
-      null;
-
-
-    editData =
-      null;
-
+    document.getElementById("editModal").classList.remove("show");
+    editType = ""; editRow = null; editData = null;
   }
-
-
 
   async function saveEdit() {
-
-    if (
-      !editType ||
-      editRow === null ||
-      editRow === undefined
-    ) {
-      return;
-    }
-
-
+    if (!editType || editRow === null) return;
     showLoading(true);
-
-
     try {
-
-
-      /*
-       * 일정 수정
-       */
-
-      if (
-        editType === "schedule"
-      ) {
-
-        const date =
-          document.getElementById(
-            "editDate"
-          ).value;
-
-
-        const time =
-          document.getElementById(
-            "editTime"
-          ).value;
-
-
-        const title =
-          document.getElementById(
-            "editTitle"
-          ).value.trim();
-
-
-        if (!date || !title) {
-
-          throw new Error(
-            "날짜와 일정을 입력해주세요."
-          );
-
-        }
-
-
-        await api(
-          "updateSchedule",
-          {
-            id: editRow,
-            row: editRow,
-            date: date,
-            time: time,
-            title: title
-          }
-        );
-
-
+      if (editType === "schedule") {
+        const date = document.getElementById("editDate").value;
+        const time = document.getElementById("editTime").value;
+        const title = document.getElementById("editTitle").value.trim();
+        if (!date || !title) throw new Error("날짜와 일정을 입력해주세요.");
+        await api("updateSchedule", { id: editRow, row: editRow, date, time, title });
         closeModal();
-
-
         await loadSchedules();
-
       }
-
-
-
-      /*
-       * 정산 수정
-       */
-
-      if (
-        editType === "settlement"
-      ) {
-
-        const date =
-          document.getElementById(
-            "editDate"
-          ).value;
-
-
-        const content =
-          document.getElementById(
-            "editContent"
-          ).value.trim();
-
-
-        const amount =
-          document.getElementById(
-            "editAmount"
-          ).value;
-
-
-        const note =
-          document.getElementById(
-            "editNote"
-          ).value.trim();
-
-
-        if (
-          !date ||
-          !content ||
-          !amount
-        ) {
-
-          throw new Error(
-            "날짜, 내용, 금액을 입력해주세요."
-          );
-
-        }
-
-
-        await api(
-          "updateSettlement",
-          {
-            id: editRow,
-            row: editRow,
-            date: date,
-            content: content,
-            amount: amount,
-            note: note
-          }
-        );
-
-
+      if (editType === "settlement") {
+        const date = document.getElementById("editDate").value;
+        const content = document.getElementById("editContent").value.trim();
+        const amount = document.getElementById("editAmount").value;
+        const note = document.getElementById("editNote").value.trim();
+        if (!date || !content || !amount) throw new Error("날짜, 내용, 금액을 입력해주세요.");
+        await api("updateSettlement", { id: editRow, row: editRow, date, content, amount, note });
         closeModal();
-
-
         await loadSettlements();
-
       }
-
-
-
-      /*
-       * 메모 수정
-       */
-
-      if (
-        editType === "memo"
-      ) {
-
-        const date =
-          document.getElementById(
-            "editDate"
-          ).value;
-
-
-        const memo =
-          document.getElementById(
-            "editMemo"
-          ).value.trim();
-
-
-        const note =
-          document.getElementById(
-            "editNote"
-          ).value.trim();
-
-
-        if (!date || !memo) {
-
-          throw new Error(
-            "날짜와 메모를 입력해주세요."
-          );
-
-        }
-
-
-        await api(
-          "updateMemo",
-          {
-            id: editRow,
-            row: editRow,
-            date: date,
-            memo: memo,
-            note: note
-          }
-        );
-
-
+      if (editType === "memo") {
+        const date = document.getElementById("editDate").value;
+        const memo = document.getElementById("editMemo").value.trim();
+        const note = document.getElementById("editNote").value.trim();
+        if (!date || !memo) throw new Error("날짜와 메모를 입력해주세요.");
+        await api("updateMemo", { id: editRow, row: editRow, date, memo, note });
         closeModal();
-
-
         await loadMemos();
-
       }
-
-
     } catch (error) {
-
-      alert(
-        error.message
-      );
-
+      alert(error.message);
     } finally {
-
       showLoading(false);
-
     }
-
   }
 
-
-
-  /*
-   * 뉴스
-   */
-
-  function showNews() {
-
-    showPage("news");
-
-  }
-
-
+  /* 뉴스 */
+  function showNews() { showPage("news"); }
 
   async function loadNews() {
-
-    const box =
-      document.getElementById(
-        "newsList"
-      );
-
-
-    box.innerHTML =
-      '<div class="empty">' +
-      '뉴스를 불러오는 중...' +
-      '</div>';
-
-
+    const box = document.getElementById("newsList");
+    box.innerHTML = '<div class="empty">뉴스를 불러오는 중...</div>';
     showLoading(true);
-
-
     try {
-
-      const result =
-        await api(
-          "getNews"
-        );
-
-
-      const data =
-        getApiData(
-          result,
-          {}
-        );
-
-
-      const items =
-        Array.isArray(data)
-          ? data
-          : (
-              data.items ||
-              data.news ||
-              result.items ||
-              result.news ||
-              []
-            );
-
-
-      const briefing =
-        !Array.isArray(data)
-          ? (
-              data.briefing ||
-              result.briefing ||
-              ""
-            )
-          : "";
-
+      const result = await api("getNews");
+      const data = getApiData(result, {});
+      const items = Array.isArray(data) ? data : (data.items || data.news || result.items || result.news || []);
+      const briefing = !Array.isArray(data) ? (data.briefing || result.briefing || "") : "";
 
       let html = "";
-
-
       if (briefing) {
-
-        html +=
-          '<div class="news-briefing">' +
-          escapeHtml(
-            briefing
-          ) +
-          '</div>';
-
+        html += '<div class="news-briefing">' + escapeHtml(briefing) + '</div>';
       }
-
-
       if (!items.length) {
-
-        if (!briefing) {
-
-          box.innerHTML =
-            '<div class="empty">' +
-            '뉴스가 없습니다.' +
-            '</div>';
-
-        } else {
-
-          box.innerHTML =
-            html;
-
-        }
-
-
+        box.innerHTML = html || '<div class="empty">뉴스가 없습니다.</div>';
         return;
       }
 
+      html += items.map(item => `
+        <div class="news-card" onclick='openNews(${JSON.stringify(item.link || "")})'>
+          <div class="news-title">${escapeHtml(item.title || item.name || "")}</div>
+          <div class="news-meta">${escapeHtml(item.pubDate || item.date || "")}</div>
+        </div>
+      `).join("");
 
-      html +=
-        items.map(
-          function(item) {
-
-            const title =
-              item.title ||
-              item.name ||
-              "";
-
-
-            const date =
-              item.pubDate ||
-              item.date ||
-              "";
-
-
-            const link =
-              item.link ||
-              "";
-
-
-            return `
-              <div
-                class="news-card"
-                onclick='openNews(${JSON.stringify(link)})'>
-
-                <div class="news-title">
-                  ${escapeHtml(
-                    title
-                  )}
-                </div>
-
-                <div class="news-meta">
-                  ${escapeHtml(
-                    date
-                  )}
-                </div>
-
-              </div>
-            `;
-
-          }
-        ).join("");
-
-
-      box.innerHTML =
-        html;
-
-
+      box.innerHTML = html;
     } catch (error) {
-
-      box.innerHTML =
-        '<div class="empty">' +
-        escapeHtml(
-          error.message
-        ) +
-        '</div>';
-
+      box.innerHTML = '<div class="empty">' + escapeHtml(error.message) + '</div>';
     } finally {
-
       showLoading(false);
-
     }
-
   }
-
-
 
   function openNews(url) {
-
-    if (
-      !url ||
-      url === "#"
-    ) {
-      return;
-    }
-
-
-    if (
-      tg &&
-      tg.openLink
-    ) {
-
-      tg.openLink(
-        url
-      );
-
-    } else {
-
-      window.open(
-        url,
-        "_blank"
-      );
-
-    }
-
+    if (!url || url === "#") return;
+    if (tg && tg.openLink) tg.openLink(url);
+    else window.open(url, "_blank");
   }
 
-
-
-  /*
-   * AI
-   */
-
+  /* AI */
   async function askAI() {
-
-    const question =
-      document.getElementById(
-        "aiQuestion"
-      ).value.trim();
-
-
-    if (!question) {
-
-      alert(
-        "질문을 입력해주세요."
-      );
-
-      return;
-    }
-
-
+    const question = document.getElementById("aiQuestion").value.trim();
+    if (!question) { alert("질문을 입력해주세요."); return; }
     showLoading(true);
-
-
     try {
-
-      const result =
-        await api(
-          "askAI",
-          {
-            question:
-              question
-          }
-        );
-
-
-      const data =
-        getApiData(
-          result,
-          ""
-        );
-
-
-      const answer =
-        typeof data === "string"
-          ? data
-          : (
-              data.answer ||
-              data.text ||
-              result.answer ||
-              result.text ||
-              "응답이 없습니다."
-            );
-
-
-      document
-        .getElementById(
-          "aiAnswer"
-        )
-        .innerHTML =
-        '<div class="ai-answer">' +
-        escapeHtml(
-          answer
-        ) +
-        '</div>';
-
-
+      const result = await api("askAI", { question });
+      const data = getApiData(result, "");
+      const answer = typeof data === "string" ? data : (data.answer || data.text || result.answer || "응답이 없습니다.");
+      document.getElementById("aiAnswer").innerHTML = '<div class="ai-answer">' + escapeHtml(answer) + '</div>';
     } catch (error) {
-
-      document
-        .getElementById(
-          "aiAnswer"
-        )
-        .innerHTML =
-        '<div class="ai-answer">' +
-        escapeHtml(
-          error.message
-        ) +
-        '</div>';
-
+      document.getElementById("aiAnswer").innerHTML = '<div class="ai-answer">' + escapeHtml(error.message) + '</div>';
     } finally {
-
       showLoading(false);
-
     }
-
   }
-
-
-
-  /*
-   * 초기값
-   */
 
   function setDefaultDates() {
-
-    const t =
-      today();
-
-
-    const scheduleDate =
-      document.getElementById(
-        "scheduleDate"
-      );
-
-
-    const settlementDate =
-      document.getElementById(
-        "settlementDate"
-      );
-
-
-    const memoDate =
-      document.getElementById(
-        "memoDate"
-      );
-
-
-    if (scheduleDate) {
-      scheduleDate.value = t;
-    }
-
-
-    if (settlementDate) {
-      settlementDate.value = t;
-    }
-
-
-    if (memoDate) {
-      memoDate.value = t;
-    }
-
+    const t = today();
+    const sDate = document.getElementById("scheduleDate");
+    const stDate = document.getElementById("settlementDate");
+    const mDate = document.getElementById("memoDate");
+    if (sDate) sDate.value = t;
+    if (stDate) stDate.value = t;
+    if (mDate) mDate.value = t;
   }
-
-
-
-  /*
-   * Telegram 햅틱
-   */
 
   function haptic() {
-
     try {
-
-      if (
-        tg &&
-        tg.HapticFeedback
-      ) {
-
-        tg.HapticFeedback
-          .impactOccurred(
-            "light"
-          );
-
-      }
-
+      if (tg && tg.HapticFeedback) tg.HapticFeedback.impactOccurred("light");
     } catch (e) {}
-
   }
 
-
-
-  /*
-   * 버튼 클릭 시 햅틱
-   */
-
-  document.addEventListener(
-    "click",
-    function(event) {
-
-      const target =
-        event.target;
-
-
-      if (
-        target &&
-        target.closest &&
-        target.closest("button")
-      ) {
-
-        haptic();
-
-      }
-
+  document.addEventListener("click", function(event) {
+    if (event.target && event.target.closest && event.target.closest("button")) {
+      haptic();
     }
-  );
+  });
 
+  document.getElementById("editModal").addEventListener("click", function(event) {
+    if (event.target === this) closeModal();
+  });
 
-
-  /*
-   * 모달 바깥 클릭
-   */
-
-  document
-    .getElementById(
-      "editModal"
-    )
-    .addEventListener(
-      "click",
-      function(event) {
-
-        if (
-          event.target ===
-          this
-        ) {
-
-          closeModal();
-
-        }
-
-      }
-    );
-
-
-
-  /*
-   * 시작
-   */
-
-  document.addEventListener(
-    "DOMContentLoaded",
-    async function() {
-
-      const ok =
-        initTelegram();
-
-
-      if (!ok) {
-        return;
-      }
-
-
-      setDefaultDates();
-
-
-      await loadHome();
-
-    }
-  );
-
+  document.addEventListener("DOMContentLoaded", async function() {
+    if (!initTelegram()) return;
+    setDefaultDates();
+    await loadHome();
+  });
 </script>
 
 </body>
