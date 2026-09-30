@@ -469,11 +469,11 @@
 
     .filter-tag-btn {
       flex: 1;
-      padding: 7px;
+      padding: 8px;
       border-radius: 8px;
       background: #f3f4f6;
       color: #4b5563;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 700;
       text-align: center;
     }
@@ -481,6 +481,20 @@
     .filter-tag-btn.active {
       background: #111827;
       color: white;
+    }
+
+    .search-box {
+      width: 100%;
+      padding: 11px 14px;
+      border-radius: 12px;
+      border: 1px solid #d1d5db;
+      background: white;
+      margin-bottom: 15px;
+      font-size: 13px;
+      outline: none;
+    }
+    .search-box:focus {
+      border-color: #111827;
     }
   </style>
 </head>
@@ -558,6 +572,7 @@
     <!-- 일정 -->
     <section id="page-schedule" class="page">
       <div class="section-title">일정 관리</div>
+
       <div class="form">
         <div class="form-title">일정 등록</div>
         <div class="field">
@@ -570,10 +585,19 @@
         </div>
         <div class="field">
           <label>일정</label>
-          <input id="scheduleTitle" placeholder="예: 회의">
+          <input id="scheduleTitle" placeholder="예: 팀 정기 미팅">
         </div>
         <button class="primary-btn" onclick="addSchedule()">일정 등록</button>
       </div>
+
+      <!-- 신규: 일정 필터 버튼 -->
+      <div class="filter-btn-group" style="margin-bottom:15px;">
+        <button id="btnScheduleUpcoming" class="filter-tag-btn active" onclick="setScheduleFilter('upcoming')">다가올 일정</button>
+        <button id="btnScheduleAll" class="filter-tag-btn" onclick="setScheduleFilter('all')">전체 일정</button>
+        <button id="btnSchedulePast" class="filter-tag-btn" onclick="setScheduleFilter('past')">지난 일정</button>
+      </div>
+
+      <div class="section-title" id="scheduleListTitle">일정 목록</div>
       <div id="scheduleList" class="list"></div>
     </section>
 
@@ -602,19 +626,19 @@
         <div id="calcResultBox" style="margin-top:14px; padding-top:12px; border-top:1px solid #334155; display:none;"></div>
       </div>
 
-      <!-- 신규: 기간 설정 필터 바 -->
+      <!-- 기간 설정 필터 바 -->
       <div class="filter-bar">
         <div style="font-weight:700; font-size:13px; margin-bottom:8px; color:#374151;">📅 정산 기간 조회</div>
         <div class="filter-row">
-          <input id="filterStartDate" type="date" onchange="applyDateFilter()" style="flex:1; padding:8px; font-size:12px; border:1px solid #d1d5db; border-radius:8px;">
+          <input id="filterStartDate" type="date" onchange="applySettlementDateFilter()" style="flex:1; padding:8px; font-size:12px; border:1px solid #d1d5db; border-radius:8px;">
           <span style="color:#9ca3af;">~</span>
-          <input id="filterEndDate" type="date" onchange="applyDateFilter()" style="flex:1; padding:8px; font-size:12px; border:1px solid #d1d5db; border-radius:8px;">
+          <input id="filterEndDate" type="date" onchange="applySettlementDateFilter()" style="flex:1; padding:8px; font-size:12px; border:1px solid #d1d5db; border-radius:8px;">
         </div>
         <div class="filter-btn-group">
-          <button class="filter-tag-btn" onclick="setQuickDateRange('7d')">최근 7일</button>
-          <button class="filter-tag-btn" onclick="setQuickDateRange('1m')">최근 1개월</button>
-          <button class="filter-tag-btn" onclick="setQuickDateRange('thisMonth')">이번 달</button>
-          <button class="filter-tag-btn" onclick="setQuickDateRange('all')">전체</button>
+          <button class="filter-tag-btn" onclick="setQuickSettlementRange('7d')">최근 7일</button>
+          <button class="filter-tag-btn" onclick="setQuickSettlementRange('1m')">최근 1개월</button>
+          <button class="filter-tag-btn" onclick="setQuickSettlementRange('thisMonth')">이번 달</button>
+          <button class="filter-tag-btn" onclick="setQuickSettlementRange('all')">전체</button>
         </div>
       </div>
 
@@ -647,8 +671,12 @@
     <!-- 메모 -->
     <section id="page-memo" class="page">
       <div class="section-title">공유 메모</div>
+
+      <!-- 신규: 메모 실시간 검색창 -->
+      <input id="memoSearchInput" class="search-box" placeholder="🔍 메모 내용 또는 등록자 검색..." oninput="filterMemos()">
+
       <div class="form">
-        <div class="form-title">메모 등록</div>
+        <div class="form-title">새 메모 등록</div>
         <div class="field">
           <label>날짜</label>
           <input id="memoDate" type="date">
@@ -663,6 +691,8 @@
         </div>
         <button class="primary-btn" onclick="addMemo()">메모 등록</button>
       </div>
+
+      <div class="section-title" id="memoListTitle">메모 목록</div>
       <div id="memoList" class="list"></div>
     </section>
 
@@ -734,6 +764,8 @@
   let editType = "";
   let editRow = null;
   let editData = null;
+
+  let scheduleFilterMode = "upcoming"; // "upcoming", "all", "past"
 
   function initTelegram() {
     if (!window.Telegram || !window.Telegram.WebApp) {
@@ -910,7 +942,7 @@
     `).join("") + '</div>';
   }
 
-  /* 일정 */
+  /* 일정 & 필터링 */
   async function loadSchedules() {
     const box = document.getElementById("scheduleList");
     box.innerHTML = '<div class="empty">불러오는 중...</div>';
@@ -918,19 +950,59 @@
       const result = await api("getSchedules");
       const data = getApiData(result, []);
       schedules = Array.isArray(data) ? data : (data.schedules || result.schedules || []);
-      renderSchedules();
+      applyScheduleFilter();
     } catch (error) {
       box.innerHTML = '<div class="empty">' + escapeHtml(error.message) + '</div>';
     }
   }
 
-  function renderSchedules() {
+  function setScheduleFilter(mode) {
+    scheduleFilterMode = mode;
+    document.getElementById("btnScheduleUpcoming").classList.toggle("active", mode === "upcoming");
+    document.getElementById("btnScheduleAll").classList.toggle("active", mode === "all");
+    document.getElementById("btnSchedulePast").classList.toggle("active", mode === "past");
+    applyScheduleFilter();
+  }
+
+  function applyScheduleFilter() {
+    const t = today();
+    let filtered = [...schedules];
+
+    if (scheduleFilterMode === "upcoming") {
+      filtered = filtered.filter(item => String(item.date || "") >= t);
+      // 날짜 및 시간 오름차순 (가까운 날짜 순)
+      filtered.sort((a, b) => (a.date + " " + (a.time || "")).localeCompare(b.date + " " + (b.time || "")));
+    } else if (scheduleFilterMode === "past") {
+      filtered = filtered.filter(item => String(item.date || "") < t);
+      // 지난 일정은 최신순 정렬
+      filtered.sort((a, b) => (b.date + " " + (b.time || "")).localeCompare(a.date + " " + (a.time || "")));
+    } else {
+      // 전체는 날짜 내림차순(최신순)
+      filtered.sort((a, b) => (b.date + " " + (b.time || "")).localeCompare(a.date + " " + (a.time || "")));
+    }
+
+    renderSchedules(filtered);
+  }
+
+  function renderSchedules(listToRender = schedules) {
     const box = document.getElementById("scheduleList");
-    if (!schedules.length) {
-      box.innerHTML = '<div class="empty">등록된 일정이 없습니다.</div>';
+    const titleEl = document.getElementById("scheduleListTitle");
+
+    const labelMap = {
+      upcoming: "다가올 일정",
+      all: "전체 일정",
+      past: "지난 일정"
+    };
+    if (titleEl) {
+      titleEl.textContent = `${labelMap[scheduleFilterMode]} (${listToRender.length}건)`;
+    }
+
+    if (!listToRender.length) {
+      box.innerHTML = `<div class="empty">${labelMap[scheduleFilterMode]}이 없습니다.</div>`;
       return;
     }
-    box.innerHTML = schedules.map(item => {
+
+    box.innerHTML = listToRender.map(item => {
       const id = getItemId(item);
       return `
         <div class="item">
@@ -986,11 +1058,10 @@
       const data = getApiData(result, []);
       settlements = Array.isArray(data) ? data : (data.settlements || result.settlements || []);
       
-      // 초기 기간이 안 잡혀 있으면 최근 1개월로 기본 세팅
       if (!document.getElementById("filterStartDate").value) {
-        setQuickDateRange('1m', false);
+        setQuickSettlementRange('1m', false);
       } else {
-        applyDateFilter();
+        applySettlementDateFilter();
       }
       document.getElementById("calcResultBox").style.display = "none";
     } catch (error) {
@@ -998,8 +1069,7 @@
     }
   }
 
-  /* 빠른 기간 선택 */
-  function setQuickDateRange(rangeType, triggerFilter = true) {
+  function setQuickSettlementRange(rangeType, triggerFilter = true) {
     const now = new Date();
     const end = formatDate(now);
     let start = "";
@@ -1022,12 +1092,11 @@
     document.getElementById("filterEndDate").value = rangeType === 'all' ? "" : end;
 
     if (triggerFilter) {
-      applyDateFilter();
+      applySettlementDateFilter();
     }
   }
 
-  /* 날짜 필터 적용 */
-  function applyDateFilter() {
+  function applySettlementDateFilter() {
     const sDate = document.getElementById("filterStartDate").value;
     const eDate = document.getElementById("filterEndDate").value;
 
@@ -1181,7 +1250,7 @@
     }
   }
 
-  /* 메모 */
+  /* 메모 & 검색 */
   async function loadMemos() {
     const box = document.getElementById("memoList");
     box.innerHTML = '<div class="empty">불러오는 중...</div>';
@@ -1189,19 +1258,41 @@
       const result = await api("getMemos");
       const data = getApiData(result, []);
       memos = Array.isArray(data) ? data : (data.memos || result.memos || []);
-      renderMemos();
+      // 메모는 최신순 기본 정렬
+      memos.sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
+      filterMemos();
     } catch (error) {
       box.innerHTML = '<div class="empty">' + escapeHtml(error.message) + '</div>';
     }
   }
 
-  function renderMemos() {
+  function filterMemos() {
+    const q = (document.getElementById("memoSearchInput").value || "").toLowerCase().trim();
+    let filtered = memos;
+    if (q) {
+      filtered = filtered.filter(item => {
+        const text = String(item.memo || "").toLowerCase();
+        const note = String(item.note || "").toLowerCase();
+        const user = String(item.registrant || item.registeredBy || "").toLowerCase();
+        return text.includes(q) || note.includes(q) || user.includes(q);
+      });
+    }
+    renderMemos(filtered);
+  }
+
+  function renderMemos(listToRender = memos) {
     const box = document.getElementById("memoList");
-    if (!memos.length) {
+    const countTitle = document.getElementById("memoListTitle");
+    if (countTitle) {
+      countTitle.textContent = `메모 목록 (${listToRender.length}건)`;
+    }
+
+    if (!listToRender.length) {
       box.innerHTML = '<div class="empty">등록된 메모가 없습니다.</div>';
       return;
     }
-    box.innerHTML = memos.map(item => {
+
+    box.innerHTML = listToRender.map(item => {
       const id = getItemId(item);
       return `
         <div class="item">
