@@ -496,7 +496,6 @@
       border-color: #111827;
     }
 
-    /* 멤버 칩 체크박스 스타일 */
     .member-chip {
       display: inline-flex;
       align-items: center;
@@ -630,7 +629,6 @@
           <span style="font-size:11px; opacity:0.8;">결제자 = 등록자</span>
         </div>
 
-        <!-- 신규: 참여 멤버 체크박스 영역 -->
         <div style="margin-bottom:12px;">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
             <label style="font-size:12px; color:#cbd5e1; font-weight:700;">참여 멤버 선택 (체크된 인원으로 N빵)</label>
@@ -790,6 +788,10 @@
   let editData = null;
 
   let scheduleFilterMode = "upcoming";
+
+  // 직전 정산 결과 및 포함된 아이템 리스트 보관
+  let lastSettlementResult = null;
+  let lastIncludedItems = [];
 
   function initTelegram() {
     if (!window.Telegram || !window.Telegram.WebApp) {
@@ -1070,7 +1072,7 @@
     }
   }
 
-  /* 정산 & 기간 필터링 & 참여 멤버 체크박스 */
+  /* 정산 & 기간 필터링 & 참여 멤버 체크박스 & 결과 메모 저장 */
   async function loadSettlements() {
     const box = document.getElementById("settlementList");
     box.innerHTML = '<div class="empty">불러오는 중...</div>';
@@ -1086,7 +1088,6 @@
       }
       document.getElementById("calcResultBox").style.display = "none";
 
-      // 멤버 목록 로드
       await loadChatMembers();
 
     } catch (error) {
@@ -1094,14 +1095,12 @@
     }
   }
 
-  /* 멤버 체크박스 로드 및 렌더링 */
   async function loadChatMembers() {
     const container = document.getElementById("memberCheckboxContainer");
     try {
       const res = await api("getChatMembers");
       chatMembers = (res && res.data) ? res.data : [];
 
-      // 현재 등록된 정산 내역의 결제자들도 자동 포함
       settlements.forEach(item => {
         const payer = (item.registrant || item.registeredBy || item.user || "").trim();
         if (payer && !chatMembers.includes(payer)) {
@@ -1234,7 +1233,6 @@
     const itemCbs = document.querySelectorAll(".settlement-checkbox:checked");
     const selectedIds = Array.from(itemCbs).map(cb => cb.value).join(",");
 
-    // 체크된 멤버들 수집
     const memberCbs = document.querySelectorAll(".calc-member-check:checked");
     const selectedMembers = Array.from(memberCbs).map(cb => cb.value).join(",");
 
@@ -1247,12 +1245,18 @@
       return;
     }
 
+    // 이번 정산에 선택된 지출 객체 목록 추출
+    const selectedIdList = selectedIds.split(",");
+    lastIncludedItems = settlements.filter(item => selectedIdList.includes(String(getItemId(item))));
+
     showLoading(true);
     try {
       const res = await api("calculateSettlement", {
         selectedIds: selectedIds,
         participants: selectedMembers
       });
+
+      lastSettlementResult = res;
 
       const box = document.getElementById("calcResultBox");
       box.style.display = "block";
@@ -1262,6 +1266,7 @@
         참여 인원: <b>${res.memberCount}명</b> (1인당 <b style="color:#fde047;">${Number(res.perPerson).toLocaleString()}원</b>)
       </div>`;
 
+      // 송금 안내
       if (res.transfers && res.transfers.length > 0) {
         html += '<div style="font-weight:700; color:#38bdf8; margin-bottom:6px; font-size:13px;">👉 송금 안내:</div>';
         html += '<ul style="margin:0; padding-left:18px; font-size:13px;">';
@@ -1276,15 +1281,87 @@
         html += '<div style="color:#a7f3d0; font-size:13px;">✨ 이미 균등하게 정산되었거나 송금할 내역이 없습니다.</div>';
       }
 
+      // 개별 결제액
       if (res.participants && res.participants.length > 0) {
         html += '<div style="margin-top:10px; padding-top:8px; border-top:1px solid #334155; font-size:11px; opacity:0.8;">';
         html += '개별 결제액: ' + res.participants.map(p => `${escapeHtml(p.name)}(${Number(p.paid).toLocaleString()}원)`).join(', ');
         html += '</div>';
       }
 
+      // 신규: 이번 정산에 포함된 결제 건 리스트 표시
+      if (lastIncludedItems.length > 0) {
+        html += '<div style="margin-top:12px; padding-top:10px; border-top:1px solid #334155;">';
+        html += `<div style="font-weight:700; color:#cbd5e1; font-size:12px; margin-bottom:6px;">📋 포함된 결제 내역 (${lastIncludedItems.length}건):</div>`;
+        html += '<ul style="margin:0; padding-left:18px; font-size:12px; color:#94a3b8; line-height:1.5;">';
+        lastIncludedItems.forEach(item => {
+          const amt = Number(item.amount || 0).toLocaleString();
+          const payer = item.registrant || item.registeredBy || item.user || "미지정";
+          html += `<li>${escapeHtml(item.content)} (${escapeHtml(payer)}): <b>${amt}원</b></li>`;
+        });
+        html += '</ul>';
+        html += '</div>';
+      }
+
+      // 정산 결과 메모 저장 버튼
+      html += `
+        <button class="primary-btn" onclick="saveSettlementAsMemo()" style="margin-top:14px; margin-bottom:0; background:#0284c7; padding:10px; font-size:13px;">
+          📝 이 정산 결과 메모로 저장하기
+        </button>
+      `;
+
       box.innerHTML = html;
     } catch (e) {
       alert(e.message);
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  /* 정산 결과를 포맷팅하여 메모로 자동 저장 */
+  async function saveSettlementAsMemo() {
+    if (!lastSettlementResult) {
+      alert("먼저 송금 계산을 실행해주세요.");
+      return;
+    }
+
+    const res = lastSettlementResult;
+    const t = today();
+
+    let memoText = `💰 [정산 완료] 총 ${Number(res.totalAmount).toLocaleString()}원\n`;
+    memoText += `• 참여: ${res.memberCount}명 (1인당 ${Number(res.perPerson).toLocaleString()}원)\n`;
+
+    if (res.transfers && res.transfers.length > 0) {
+      memoText += `\n[송금 가이드]\n`;
+      res.transfers.forEach(t => {
+        memoText += `• ${t.from} ➡️️ ${t.to}: ${Number(t.amount).toLocaleString()}원\n`;
+      });
+    } else {
+      memoText += `\n(추가 송금 없음 - 정산 완료)\n`;
+    }
+
+    // 신규: 메모 본문에도 포함된 결제 건 리스트 추가
+    if (lastIncludedItems && lastIncludedItems.length > 0) {
+      memoText += `\n[포함된 결제 내역]\n`;
+      lastIncludedItems.forEach((item, idx) => {
+        const amt = Number(item.amount || 0).toLocaleString();
+        const payer = item.registrant || item.registeredBy || item.user || "미지정";
+        memoText += `${idx + 1}. ${item.content} (${payer}): ${amt}원\n`;
+      });
+    }
+
+    if (!confirm("포함된 결제 내역과 함께 메모 탭에 저장할까요?")) return;
+
+    showLoading(true);
+    try {
+      await api("addMemo", {
+        date: t,
+        memo: memoText.trim(),
+        note: "정산 계산기 자동 생성"
+      });
+
+      alert("결제 건 목록이 포함된 정산 결과가 메모에 저장되었습니다!\n'메모' 탭에서 확인할 수 있습니다.");
+    } catch (err) {
+      alert("메모 저장 실패: " + err.message);
     } finally {
       showLoading(false);
     }
@@ -1374,7 +1451,7 @@
       const id = getItemId(item);
       return `
         <div class="item">
-          <div class="item-main">📝 ${escapeHtml(item.memo || "")}</div>
+          <div class="item-main" style="white-space:pre-wrap;">📝 ${escapeHtml(item.memo || "")}</div>
           <div class="item-meta">${escapeHtml(item.date || "")}${item.note ? "<br>비고: " + escapeHtml(item.note) : ""}<br>등록자: ${escapeHtml(item.registrant || item.registeredBy || "")}</div>
           <div class="item-actions">
             <button class="small-btn" onclick='openEdit("memo", ${JSON.stringify(id)})'>수정</button>
