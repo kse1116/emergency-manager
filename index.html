@@ -425,7 +425,6 @@
       display: none !important;
     }
 
-    /* 정산 전용 스타일 */
     .settlement-card-header {
       display: flex;
       align-items: flex-start;
@@ -495,6 +494,26 @@
     }
     .search-box:focus {
       border-color: #111827;
+    }
+
+    /* 멤버 칩 체크박스 스타일 */
+    .member-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #334155;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #f8fafc;
+      cursor: pointer;
+      user-select: none;
+    }
+    .member-chip input {
+      width: 15px;
+      height: 15px;
+      accent-color: #38bdf8;
     }
   </style>
 </head>
@@ -590,7 +609,6 @@
         <button class="primary-btn" onclick="addSchedule()">일정 등록</button>
       </div>
 
-      <!-- 신규: 일정 필터 버튼 -->
       <div class="filter-btn-group" style="margin-bottom:15px;">
         <button id="btnScheduleUpcoming" class="filter-tag-btn active" onclick="setScheduleFilter('upcoming')">다가올 일정</button>
         <button id="btnScheduleAll" class="filter-tag-btn" onclick="setScheduleFilter('all')">전체 일정</button>
@@ -612,14 +630,20 @@
           <span style="font-size:11px; opacity:0.8;">결제자 = 등록자</span>
         </div>
 
-        <div style="margin-bottom:10px;">
-          <label style="font-size:12px; color:#cbd5e1; display:block; margin-bottom:4px;">참여 멤버 (쉼표 구분)</label>
-          <input id="calcParticipants" placeholder="예: 철수, 영희, 민수 (비워두면 결제자들끼리 N빵)"
-                 style="width:100%; padding:10px; border-radius:9px; border:0; outline:none; font-size:13px; color:#111827;">
+        <!-- 신규: 참여 멤버 체크박스 영역 -->
+        <div style="margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <label style="font-size:12px; color:#cbd5e1; font-weight:700;">참여 멤버 선택 (체크된 인원으로 N빵)</label>
+            <button class="small-btn" onclick="promptAddCustomMember()" style="padding:4px 8px; font-size:11px; background:#334155; color:#93c5fd;">+ 직접 추가</button>
+          </div>
+          
+          <div id="memberCheckboxContainer" style="display:flex; flex-wrap:wrap; gap:6px; min-height:32px; align-items:center;">
+            <span style="font-size:12px; color:#94a3b8;">멤버 목록을 불러오는 중...</span>
+          </div>
         </div>
 
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px;">
-          <button class="small-btn" onclick="toggleSelectAllSettlements()" style="background:#334155; color:white;">전체선택/해제</button>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px;">
+          <button class="small-btn" onclick="toggleSelectAllSettlements()" style="background:#334155; color:white;">지출 전체선택/해제</button>
           <button class="small-btn" onclick="runSettlementCalc()" style="background:#38bdf8; color:#0f172a; font-weight:800;">송금 계산 실행</button>
         </div>
 
@@ -671,8 +695,6 @@
     <!-- 메모 -->
     <section id="page-memo" class="page">
       <div class="section-title">공유 메모</div>
-
-      <!-- 신규: 메모 실시간 검색창 -->
       <input id="memoSearchInput" class="search-box" placeholder="🔍 메모 내용 또는 등록자 검색..." oninput="filterMemos()">
 
       <div class="form">
@@ -760,12 +782,14 @@
   let schedules = [];
   let settlements = [];
   let memos = [];
+  let chatMembers = [];
+
   let currentPage = "home";
   let editType = "";
   let editRow = null;
   let editData = null;
 
-  let scheduleFilterMode = "upcoming"; // "upcoming", "all", "past"
+  let scheduleFilterMode = "upcoming";
 
   function initTelegram() {
     if (!window.Telegram || !window.Telegram.WebApp) {
@@ -970,14 +994,11 @@
 
     if (scheduleFilterMode === "upcoming") {
       filtered = filtered.filter(item => String(item.date || "") >= t);
-      // 날짜 및 시간 오름차순 (가까운 날짜 순)
       filtered.sort((a, b) => (a.date + " " + (a.time || "")).localeCompare(b.date + " " + (b.time || "")));
     } else if (scheduleFilterMode === "past") {
       filtered = filtered.filter(item => String(item.date || "") < t);
-      // 지난 일정은 최신순 정렬
       filtered.sort((a, b) => (b.date + " " + (b.time || "")).localeCompare(a.date + " " + (a.time || "")));
     } else {
-      // 전체는 날짜 내림차순(최신순)
       filtered.sort((a, b) => (b.date + " " + (b.time || "")).localeCompare(a.date + " " + (a.time || "")));
     }
 
@@ -1049,7 +1070,7 @@
     }
   }
 
-  /* 정산 & 기간 필터링 */
+  /* 정산 & 기간 필터링 & 참여 멤버 체크박스 */
   async function loadSettlements() {
     const box = document.getElementById("settlementList");
     box.innerHTML = '<div class="empty">불러오는 중...</div>';
@@ -1064,8 +1085,59 @@
         applySettlementDateFilter();
       }
       document.getElementById("calcResultBox").style.display = "none";
+
+      // 멤버 목록 로드
+      await loadChatMembers();
+
     } catch (error) {
       box.innerHTML = '<div class="empty">' + escapeHtml(error.message) + '</div>';
+    }
+  }
+
+  /* 멤버 체크박스 로드 및 렌더링 */
+  async function loadChatMembers() {
+    const container = document.getElementById("memberCheckboxContainer");
+    try {
+      const res = await api("getChatMembers");
+      chatMembers = (res && res.data) ? res.data : [];
+
+      // 현재 등록된 정산 내역의 결제자들도 자동 포함
+      settlements.forEach(item => {
+        const payer = (item.registrant || item.registeredBy || item.user || "").trim();
+        if (payer && !chatMembers.includes(payer)) {
+          chatMembers.push(payer);
+        }
+      });
+
+      renderMemberCheckboxes();
+    } catch (e) {
+      container.innerHTML = '<span style="font-size:12px; color:#f87171;">멤버 목록 로드 실패 (수동 추가 가능)</span>';
+    }
+  }
+
+  function renderMemberCheckboxes() {
+    const container = document.getElementById("memberCheckboxContainer");
+    if (!chatMembers.length) {
+      container.innerHTML = '<span style="font-size:12px; color:#94a3b8;">등록된 멤버가 없습니다. [+ 직접 추가]를 눌러주세요.</span>';
+      return;
+    }
+
+    container.innerHTML = chatMembers.map(name => `
+      <label class="member-chip">
+        <input type="checkbox" class="calc-member-check" value="${escapeHtml(name)}" checked>
+        <span>${escapeHtml(name)}</span>
+      </label>
+    `).join("");
+  }
+
+  function promptAddCustomMember() {
+    const name = prompt("추가할 멤버 이름을 입력하세요:");
+    if (name && name.trim()) {
+      const cleanName = name.trim();
+      if (!chatMembers.includes(cleanName)) {
+        chatMembers.push(cleanName);
+        renderMemberCheckboxes();
+      }
     }
   }
 
@@ -1159,12 +1231,19 @@
   }
 
   async function runSettlementCalc() {
-    const checkboxes = document.querySelectorAll(".settlement-checkbox:checked");
-    const selectedIds = Array.from(checkboxes).map(cb => cb.value).join(",");
-    const participants = document.getElementById("calcParticipants").value.trim();
+    const itemCbs = document.querySelectorAll(".settlement-checkbox:checked");
+    const selectedIds = Array.from(itemCbs).map(cb => cb.value).join(",");
+
+    // 체크된 멤버들 수집
+    const memberCbs = document.querySelectorAll(".calc-member-check:checked");
+    const selectedMembers = Array.from(memberCbs).map(cb => cb.value).join(",");
 
     if (!selectedIds) {
       alert("정산에 포함할 지출 항목을 1개 이상 체크해주세요.");
+      return;
+    }
+    if (!selectedMembers) {
+      alert("N빵에 참여할 멤버를 1명 이상 체크해주세요.");
       return;
     }
 
@@ -1172,7 +1251,7 @@
     try {
       const res = await api("calculateSettlement", {
         selectedIds: selectedIds,
-        participants: participants
+        participants: selectedMembers
       });
 
       const box = document.getElementById("calcResultBox");
@@ -1258,7 +1337,6 @@
       const result = await api("getMemos");
       const data = getApiData(result, []);
       memos = Array.isArray(data) ? data : (data.memos || result.memos || []);
-      // 메모는 최신순 기본 정렬
       memos.sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
       filterMemos();
     } catch (error) {
