@@ -789,7 +789,6 @@
 
   let scheduleFilterMode = "upcoming";
 
-  // 직전 정산 결과 및 포함된 아이템 리스트 보관
   let lastSettlementResult = null;
   let lastIncludedItems = [];
 
@@ -929,10 +928,11 @@
       .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
   }
 
+  // row 값을 실제 고유 식별자로 명확하게 반환
   function getItemId(item) {
     if (!item) return "";
-    if (item.id !== undefined && item.id !== null) return item.id;
-    if (item.row !== undefined && item.row !== null) return item.row;
+    if (item.row !== undefined && item.row !== null) return Number(item.row);
+    if (item.id !== undefined && item.id !== null) return Number(item.id);
     return "";
   }
 
@@ -1032,8 +1032,8 @@
           <div class="item-main">📅 ${escapeHtml(item.date || "")}${item.time ? " · " + escapeHtml(item.time) : ""}<br>${escapeHtml(item.title || item.schedule || "")}</div>
           <div class="item-meta">등록자: ${escapeHtml(item.registrant || item.registeredBy || "")}</div>
           <div class="item-actions">
-            <button class="small-btn" onclick='openEdit("schedule", ${JSON.stringify(id)})'>수정</button>
-            <button class="small-btn delete" onclick='deleteSchedule(${JSON.stringify(id)})'>삭제</button>
+            <button class="small-btn" onclick='openEdit("schedule", ${id})'>수정</button>
+            <button class="small-btn delete" onclick='deleteSchedule(${id})'>삭제</button>
           </div>
         </div>
       `;
@@ -1214,8 +1214,8 @@
             </div>
           </div>
           <div class="item-actions" style="margin-left:30px;">
-            <button class="small-btn" onclick='openEdit("settlement", ${JSON.stringify(id)})'>수정</button>
-            <button class="small-btn delete" onclick='deleteSettlement(${JSON.stringify(id)})'>삭제</button>
+            <button class="small-btn" onclick='openEdit("settlement", ${id})'>수정</button>
+            <button class="small-btn delete" onclick='deleteSettlement(${id})'>삭제</button>
           </div>
         </div>
       `;
@@ -1245,9 +1245,8 @@
       return;
     }
 
-    // 이번 정산에 선택된 지출 객체 목록 추출
-    const selectedIdList = selectedIds.split(",");
-    lastIncludedItems = settlements.filter(item => selectedIdList.includes(String(getItemId(item))));
+    const selectedIdList = selectedIds.split(",").map(Number);
+    lastIncludedItems = settlements.filter(item => selectedIdList.includes(getItemId(item)));
 
     showLoading(true);
     try {
@@ -1266,7 +1265,6 @@
         참여 인원: <b>${res.memberCount}명</b> (1인당 <b style="color:#fde047;">${Number(res.perPerson).toLocaleString()}원</b>)
       </div>`;
 
-      // 송금 안내
       if (res.transfers && res.transfers.length > 0) {
         html += '<div style="font-weight:700; color:#38bdf8; margin-bottom:6px; font-size:13px;">👉 송금 안내:</div>';
         html += '<ul style="margin:0; padding-left:18px; font-size:13px;">';
@@ -1281,14 +1279,12 @@
         html += '<div style="color:#a7f3d0; font-size:13px;">✨ 이미 균등하게 정산되었거나 송금할 내역이 없습니다.</div>';
       }
 
-      // 개별 결제액
       if (res.participants && res.participants.length > 0) {
         html += '<div style="margin-top:10px; padding-top:8px; border-top:1px solid #334155; font-size:11px; opacity:0.8;">';
         html += '개별 결제액: ' + res.participants.map(p => `${escapeHtml(p.name)}(${Number(p.paid).toLocaleString()}원)`).join(', ');
         html += '</div>';
       }
 
-      // 신규: 이번 정산에 포함된 결제 건 리스트 표시
       if (lastIncludedItems.length > 0) {
         html += '<div style="margin-top:12px; padding-top:10px; border-top:1px solid #334155;">';
         html += `<div style="font-weight:700; color:#cbd5e1; font-size:12px; margin-bottom:6px;">📋 포함된 결제 내역 (${lastIncludedItems.length}건):</div>`;
@@ -1302,7 +1298,6 @@
         html += '</div>';
       }
 
-      // 정산 결과 메모 저장 버튼
       html += `
         <button class="primary-btn" onclick="saveSettlementAsMemo()" style="margin-top:14px; margin-bottom:0; background:#0284c7; padding:10px; font-size:13px;">
           📝 이 정산 결과 메모로 저장하기
@@ -1317,7 +1312,6 @@
     }
   }
 
-  /* 정산 결과를 포맷팅하여 메모로 자동 저장 */
   async function saveSettlementAsMemo() {
     if (!lastSettlementResult) {
       alert("먼저 송금 계산을 실행해주세요.");
@@ -1333,13 +1327,12 @@
     if (res.transfers && res.transfers.length > 0) {
       memoText += `\n[송금 가이드]\n`;
       res.transfers.forEach(t => {
-        memoText += `• ${t.from} ➡️️ ${t.to}: ${Number(t.amount).toLocaleString()}원\n`;
+        memoText += `• ${t.from} ➡ ${t.to}: ${Number(t.amount).toLocaleString()}원\n`;
       });
     } else {
       memoText += `\n(추가 송금 없음 - 정산 완료)\n`;
     }
 
-    // 신규: 메모 본문에도 포함된 결제 건 리스트 추가
     if (lastIncludedItems && lastIncludedItems.length > 0) {
       memoText += `\n[포함된 결제 내역]\n`;
       lastIncludedItems.forEach((item, idx) => {
@@ -1454,8 +1447,8 @@
           <div class="item-main" style="white-space:pre-wrap;">📝 ${escapeHtml(item.memo || "")}</div>
           <div class="item-meta">${escapeHtml(item.date || "")}${item.note ? "<br>비고: " + escapeHtml(item.note) : ""}<br>등록자: ${escapeHtml(item.registrant || item.registeredBy || "")}</div>
           <div class="item-actions">
-            <button class="small-btn" onclick='openEdit("memo", ${JSON.stringify(id)})'>수정</button>
-            <button class="small-btn delete" onclick='deleteMemo(${JSON.stringify(id)})'>삭제</button>
+            <button class="small-btn" onclick='openEdit("memo", ${id})'>수정</button>
+            <button class="small-btn delete" onclick='deleteMemo(${id})'>삭제</button>
           </div>
         </div>
       `;
@@ -1495,25 +1488,28 @@
     }
   }
 
-  /* 수정 모달 */
+  /* 수정 모달 (정확한 row 번호로 1:1 매칭) */
   function openEdit(type, id) {
     let data = null;
-    const numericId = Number(id);
+    const targetRow = Number(id);
 
     if (type === "schedule") {
-      data = schedules.find(item => String(getItemId(item)) === String(id) || Number(item.row) === numericId);
+      data = schedules.find(item => getItemId(item) === targetRow);
     }
     if (type === "settlement") {
-      data = settlements.find(item => String(getItemId(item)) === String(id) || Number(item.row) === numericId);
+      data = settlements.find(item => getItemId(item) === targetRow);
     }
     if (type === "memo") {
-      data = memos.find(item => String(getItemId(item)) === String(id) || Number(item.row) === numericId);
+      data = memos.find(item => getItemId(item) === targetRow);
     }
 
-    if (!data) { alert("수정할 데이터를 찾을 수 없습니다."); return; }
+    if (!data) {
+      alert("수정할 데이터를 찾을 수 없습니다.");
+      return;
+    }
 
     editType = type;
-    editRow = getItemId(data);
+    editRow = targetRow;
     editData = data;
     const fields = document.getElementById("modalFields");
 
