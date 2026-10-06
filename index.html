@@ -609,8 +609,8 @@
       </div>
 
       <div class="filter-btn-group" style="margin-bottom:15px;">
-        <button id="btnScheduleUpcoming" class="filter-tag-btn active" onclick="setScheduleFilter('upcoming')">다가올 일정</button>
-        <button id="btnScheduleAll" class="filter-tag-btn" onclick="setScheduleFilter('all')">전체 일정</button>
+        <button id="btnScheduleUpcoming" class="filter-tag-btn" onclick="setScheduleFilter('upcoming')">다가올 일정</button>
+        <button id="btnScheduleAll" class="filter-tag-btn active" onclick="setScheduleFilter('all')">전체 일정</button>
         <button id="btnSchedulePast" class="filter-tag-btn" onclick="setScheduleFilter('past')">지난 일정</button>
       </div>
 
@@ -622,7 +622,6 @@
     <section id="page-settlement" class="page">
       <div class="section-title">스마트 N빵 정산</div>
 
-      <!-- 정산 계산기 패널 -->
       <div class="calc-panel">
         <div style="font-weight:800; font-size:15px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
           <span>💡 정산 송금 계산기</span>
@@ -648,7 +647,6 @@
         <div id="calcResultBox" style="margin-top:14px; padding-top:12px; border-top:1px solid #334155; display:none;"></div>
       </div>
 
-      <!-- 기간 설정 필터 바 -->
       <div class="filter-bar">
         <div style="font-weight:700; font-size:13px; margin-bottom:8px; color:#374151;">📅 정산 기간 조회</div>
         <div class="filter-row">
@@ -660,11 +658,10 @@
           <button class="filter-tag-btn" onclick="setQuickSettlementRange('7d')">최근 7일</button>
           <button class="filter-tag-btn" onclick="setQuickSettlementRange('1m')">최근 1개월</button>
           <button class="filter-tag-btn" onclick="setQuickSettlementRange('thisMonth')">이번 달</button>
-          <button class="filter-tag-btn" onclick="setQuickSettlementRange('all')">전체</button>
+          <button class="filter-tag-btn active" onclick="setQuickSettlementRange('all')">전체</button>
         </div>
       </div>
 
-      <!-- 지출 등록 폼 -->
       <div class="form">
         <div class="form-title">새 지출 내역 등록</div>
         <div class="field">
@@ -787,7 +784,8 @@
   let editRow = null;
   let editData = null;
 
-  let scheduleFilterMode = "upcoming";
+  // 전체 일정을 기본 모드로 변경
+  let scheduleFilterMode = "all";
 
   let lastSettlementResult = null;
   let lastIncludedItems = [];
@@ -928,7 +926,6 @@
       .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
   }
 
-  // row 값을 실제 고유 식별자로 명확하게 반환
   function getItemId(item) {
     if (!item) return "";
     if (item.row !== undefined && item.row !== null) return Number(item.row);
@@ -1081,8 +1078,9 @@
       const data = getApiData(result, []);
       settlements = Array.isArray(data) ? data : (data.settlements || result.settlements || []);
       
-      if (!document.getElementById("filterStartDate").value) {
-        setQuickSettlementRange('1m', false);
+      // 전체를 기본 기간으로 설정
+      if (!document.getElementById("filterStartDate").value && !document.getElementById("filterEndDate").value) {
+        setQuickSettlementRange('all', false);
       } else {
         applySettlementDateFilter();
       }
@@ -1161,6 +1159,12 @@
 
     document.getElementById("filterStartDate").value = start;
     document.getElementById("filterEndDate").value = rangeType === 'all' ? "" : end;
+
+    document.querySelectorAll(".filter-tag-btn").forEach(btn => {
+      btn.classList.toggle("active", btn.textContent.includes(
+        rangeType === '7d' ? '7일' : (rangeType === '1m' ? '1개월' : (rangeType === 'thisMonth' ? '이번 달' : '전체'))
+      ));
+    });
 
     if (triggerFilter) {
       applySettlementDateFilter();
@@ -1488,7 +1492,7 @@
     }
   }
 
-  /* 수정 모달 (정확한 row 번호로 1:1 매칭) */
+  /* 수정 모달 */
   function openEdit(type, id) {
     let data = null;
     const targetRow = Number(id);
