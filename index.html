@@ -784,7 +784,6 @@
   let editRow = null;
   let editData = null;
 
-  // 전체 일정을 기본 모드로 변경
   let scheduleFilterMode = "all";
 
   let lastSettlementResult = null;
@@ -926,6 +925,7 @@
       .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
   }
 
+  // row 값을 실제 고유 식별자 숫자로 명확하게 반환
   function getItemId(item) {
     if (!item) return "";
     if (item.row !== undefined && item.row !== null) return Number(item.row);
@@ -1078,7 +1078,6 @@
       const data = getApiData(result, []);
       settlements = Array.isArray(data) ? data : (data.settlements || result.settlements || []);
       
-      // 전체를 기본 기간으로 설정
       if (!document.getElementById("filterStartDate").value && !document.getElementById("filterEndDate").value) {
         setQuickSettlementRange('all', false);
       } else {
@@ -1160,7 +1159,8 @@
     document.getElementById("filterStartDate").value = start;
     document.getElementById("filterEndDate").value = rangeType === 'all' ? "" : end;
 
-    document.querySelectorAll(".filter-tag-btn").forEach(btn => {
+    // 정산 탭 내부의 버튼만 토글하도록 범위 제한 (일정 탭 스타일 오작동 방지)
+    document.querySelectorAll("#page-settlement .filter-btn-group .filter-tag-btn").forEach(btn => {
       btn.classList.toggle("active", btn.textContent.includes(
         rangeType === '7d' ? '7일' : (rangeType === '1m' ? '1개월' : (rangeType === 'thisMonth' ? '이번 달' : '전체'))
       ));
@@ -1331,7 +1331,7 @@
     if (res.transfers && res.transfers.length > 0) {
       memoText += `\n[송금 가이드]\n`;
       res.transfers.forEach(t => {
-        memoText += `• ${t.from} ➡ ${t.to}: ${Number(t.amount).toLocaleString()}원\n`;
+        memoText += `• ${t.from} ➡️ ${t.to}: ${Number(t.amount).toLocaleString()}원\n`;
       });
     } else {
       memoText += `\n(추가 송금 없음 - 정산 완료)\n`;
